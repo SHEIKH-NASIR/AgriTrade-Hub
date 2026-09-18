@@ -1,0 +1,95 @@
+<html th:replace="~{Merchant/merchantbase::layout(~{::section})}">
+<body>
+<section>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+				<div class="">
+					<p th:if="${msg}" class="text-success" th:text="${msg}"></p>
+				</div>
+                <!-- Card -->
+                <div class="card shadow-lg rounded-4 border-0">
+                    <div class="card-header bg-primary text-white rounded-top-4">
+                        <h4 class="mb-0 text-center">Edit Profile</h4>
+                    </div>
+
+                    <div class="card-body p-4">
+                        <!-- Flash message -->
+                        <div th:if="${msg}" class="alert alert-success" th:text="${msg}"></div>
+
+                        <form th:action="@{UpdateProfile}" th:object="${merchant}" method="post" enctype="multipart/form-data">
+                            <div class="row">
+                                <!-- Profile Picture Section -->
+                                <div class="col-md-4 text-center mb-3">
+                                    <img th:src="@{${merchant.profilepic != null} ? '/ProfilePic/' + ${merchant.profilepic} : '/img/user_img.jpg'}"
+                                         class="rounded-circle border shadow border-danger"
+                                         alt="Profile Picture"
+                                         width="200px" height="200px"/>
+                                    <div class="mt-3">
+                                        <input type="file" name="file" class="form-control" />
+                                    </div>
+                                </div>
+
+                                <!-- Form Fields -->
+                                <div class="col-md-8">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold">Name</label>
+                                        <input type="text" class="form-control" name="name" th:value="${merchant.name}" required/>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold">Email</label>
+                                        <input type="email" class="form-control" th:value="${merchant.email}" readonly/>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold">Contact No</label>
+                                        <input type="text" class="form-control" name="contactno" th:value="${merchant.contactno}" required pattern="[0-9]{10,13}" title="Enter valid contact number"/>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold">Aadhar No</label>
+                                        <input type="text" class="form-control" name="aadharno" th:value="${merchant.aadharno}" required pattern="[0-9]{12}" title="Enter 12-digit Aadhar number"/>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold">PAN Card No</label>
+                                        <input type="text" class="form-control" name="pancardno" th:value="${merchant.pancardno}" required pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}" title="Enter valid PAN (e.g., ABCDE1234F)"/>
+                                    </div>
+
+                                    <!-- <div class="mb-3">
+                                        <label class="form-label fw-semibold">Company/Brand Name</label>
+                                        <input type="text" class="form-control" name="companyname" th:value="${merchant.companyname}" required/>
+                                    </div>
+ -->
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold">Address</label>
+                                        <textarea class="form-control" name="address" rows="3" required
+                                                  th:text="${merchant.address}"></textarea>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold">Status</label>
+                                        <input type="text" class="form-control" name="status" th:value="${merchant.status}" readonly/>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold">Registration Date</label>
+                                        <input type="text" class="form-control" th:value="${merchant.regdate}" readonly/>
+                                    </div>
+
+                                    <div class="text-end">
+                                        <button type="submit" class="btn btn-success px-4">Update Profile</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div> <!-- card-body -->
+                </div> <!-- card -->
+
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

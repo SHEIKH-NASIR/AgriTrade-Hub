@@ -1,0 +1,554 @@
+<html th:replace="~{admin/adminbase::layout(~{::section})}">
+
+<head></head>
+
+<body>
+
+<section>
+
+    <div class="container-fluid">
+
+        <div class="row">
+
+            <div class="col-md-12">
+
+                <div class="card shadow-sm">
+
+                    <div class="card-header bg-success text-white">
+
+                        <h4 class="mb-0">
+                            🤖 AI Forecast Historical Demand
+                        </h4>
+
+                        <small>
+                            Add genuine historical demand data for
+                            Independent Farmers and FPOs.
+                        </small>
+
+                    </div>
+
+
+                    <div class="card-body">
+
+
+                        <!-- SUCCESS -->
+
+                        <div th:if="${success}"
+                             class="alert alert-success"
+                             th:text="${success}">
+                        </div>
+
+
+                        <!-- ERROR -->
+
+                        <div th:if="${error}"
+                             class="alert alert-danger"
+                             th:text="${error}">
+                        </div>
+
+
+                        <div class="alert alert-info">
+
+                            <strong>Why this data?</strong>
+
+                            <br>
+
+                            Historical demand gives the AI more evidence
+                            when the marketplace currently has only a few
+                            real orders.
+
+                            <br>
+
+                            <strong>
+                                These records do NOT create fake marketplace
+                                orders.
+                            </strong>
+
+                        </div>
+
+
+                        <!-- ADD FORM -->
+
+                        <div class="card border mb-4">
+
+                            <div class="card-header">
+
+                                <h5 class="mb-0">
+                                    Add Historical Demand
+                                </h5>
+
+                            </div>
+
+
+                            <div class="card-body">
+
+                                <form
+                                        th:action="@{/admin/forecast-history/save}"
+                                        method="post">
+
+
+                                    <!-- SCOPE -->
+
+                                    <div class="row">
+
+
+                                        <div class="col-md-4 mb-3">
+
+                                            <label class="form-label">
+                                                Forecast For
+                                            </label>
+
+                                            <select
+                                                    name="scopeType"
+                                                    id="scopeType"
+                                                    class="form-control"
+                                                    required
+                                                    onchange="changeScope()">
+
+                                                <option value="">
+                                                    Select
+                                                </option>
+
+                                                <option value="FARMER">
+                                                    Independent Farmer
+                                                </option>
+
+                                                <option value="FPO">
+                                                    FPO
+                                                </option>
+
+                                            </select>
+
+                                        </div>
+
+
+                                        <!-- FARMER -->
+
+                                        <div
+                                                class="col-md-4 mb-3"
+                                                id="farmerBox"
+                                                style="display:none;">
+
+                                            <label class="form-label">
+                                                Farmer
+                                            </label>
+
+                                            <select
+                                                    name="scopeId"
+                                                    id="farmerSelect"
+                                                    class="form-control"
+                                                    disabled>
+
+                                                <option value="">
+                                                    Select Farmer
+                                                </option>
+
+                                                <option
+                                                        th:each="farmer : ${farmers}"
+                                                        th:value="${farmer.id}"
+                                                        th:text="${farmer.name + ' - ' + farmer.email}">
+                                                </option>
+
+                                            </select>
+
+                                        </div>
+
+
+                                        <!-- FPO -->
+
+                                        <div
+                                                class="col-md-4 mb-3"
+                                                id="fpoBox"
+                                                style="display:none;">
+
+                                            <label class="form-label">
+                                                FPO
+                                            </label>
+
+                                            <select
+                                                    name="scopeId"
+                                                    id="fpoSelect"
+                                                    class="form-control"
+                                                    disabled>
+
+                                                <option value="">
+                                                    Select FPO
+                                                </option>
+
+                                                <option
+                                                        th:each="fpo : ${fpos}"
+                                                        th:value="${fpo.id}"
+                                                        th:text="${fpo.name}">
+                                                </option>
+
+                                            </select>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="row">
+
+
+                                        <!-- PRODUCT -->
+
+                                        <div class="col-md-4 mb-3">
+
+                                            <label class="form-label">
+                                                Product
+                                            </label>
+
+                                            <input
+                                                    type="text"
+                                                    name="productName"
+                                                    class="form-control"
+                                                    placeholder="Example: Wheat"
+                                                    required>
+
+                                        </div>
+
+
+                                        <!-- DATE -->
+
+                                        <div class="col-md-4 mb-3">
+
+                                            <label class="form-label">
+                                                Historical Demand Date
+                                            </label>
+
+                                            <input
+                                                    type="date"
+                                                    name="demandDate"
+                                                    class="form-control"
+                                                    required>
+
+                                        </div>
+
+
+                                        <!-- QUANTITY -->
+
+                                        <div class="col-md-4 mb-3">
+
+                                            <label class="form-label">
+                                                Demand Quantity (kg)
+                                            </label>
+
+                                            <input
+                                                    type="number"
+                                                    name="quantity"
+                                                    class="form-control"
+                                                    min="1"
+                                                    required>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="row">
+
+
+                                        <!-- PRICE -->
+
+                                        <div class="col-md-4 mb-3">
+
+                                            <label class="form-label">
+                                                Historical Price / kg
+                                                <small>
+                                                    (Optional)
+                                                </small>
+                                            </label>
+
+                                            <input
+                                                    type="number"
+                                                    name="pricePerUnit"
+                                                    class="form-control"
+                                                    min="0"
+                                                    step="0.01">
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <button
+                                            type="submit"
+                                            class="btn btn-success">
+
+                                        ➕ Add Historical Demand
+
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- HISTORY -->
+
+                        <h5 class="mb-3">
+                            📊 Historical Demand Records
+                        </h5>
+
+
+                        <div class="table-responsive">
+
+                            <table
+                                    class="table table-bordered table-hover">
+
+                                <thead class="table-success">
+
+                                <tr>
+
+                                    <th>Scope</th>
+
+                                    <th>Owner</th>
+
+                                    <th>Product</th>
+
+                                    <th>Date</th>
+
+                                    <th>Quantity</th>
+
+                                    <th>Price</th>
+
+                                    <th>Source</th>
+
+                                    <th>Action</th>
+
+                                </tr>
+
+                                </thead>
+
+
+                                <tbody>
+
+                                <tr th:each="item : ${history}">
+
+                                    <td>
+
+                                        <span
+                                                th:if="${item.farmer != null}"
+                                                class="badge bg-primary">
+
+                                            Independent Farmer
+
+                                        </span>
+
+                                        <span
+                                                th:if="${item.fpo != null}"
+                                                class="badge bg-success">
+
+                                            FPO
+
+                                        </span>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <span
+                                                th:if="${item.farmer != null}"
+                                                th:text="${item.farmer.name}">
+                                        </span>
+
+                                        <span
+                                                th:if="${item.fpo != null}"
+                                                th:text="${item.fpo.name}">
+                                        </span>
+
+                                    </td>
+
+
+                                    <td
+                                            th:text="${item.productName}">
+                                        Wheat
+                                    </td>
+
+
+                                    <td
+                                            th:text="${item.demandDate}">
+                                        2026-07-01
+                                    </td>
+
+
+                                    <td>
+
+                                        <strong
+                                                th:text="${item.quantity}">
+                                            500
+                                        </strong>
+
+                                        kg
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <span
+                                                th:if="${item.pricePerUnit != null}"
+                                                th:text="'₹ ' + ${item.pricePerUnit}">
+                                        </span>
+
+                                        <span
+                                                th:if="${item.pricePerUnit == null}">
+                                            —
+                                        </span>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <span
+                                                class="badge bg-secondary"
+                                                th:text="${item.source}">
+                                            HISTORICAL
+                                        </span>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <a
+                                                class="btn btn-sm btn-danger"
+                                                th:href="@{/admin/forecast-history/delete(id=${item.id})}"
+                                                onclick="return confirm('Delete this historical demand record?');">
+
+                                            Delete
+
+                                        </a>
+
+                                    </td>
+
+                                </tr>
+
+
+                                <tr
+                                        th:if="${#lists.isEmpty(history)}">
+
+                                    <td
+                                            colspan="8"
+                                            class="text-center text-muted">
+
+                                        No historical demand records added yet.
+
+                                    </td>
+
+                                </tr>
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <script>
+
+        function changeScope() {
+
+            const type =
+                document.getElementById("scopeType").value;
+
+            const farmerBox =
+                document.getElementById("farmerBox");
+
+            const fpoBox =
+                document.getElementById("fpoBox");
+
+            const farmerSelect =
+                document.getElementById("farmerSelect");
+
+            const fpoSelect =
+                document.getElementById("fpoSelect");
+
+
+            // Hide both initially
+
+            farmerBox.style.display = "none";
+            fpoBox.style.display = "none";
+
+
+            // Disable both initially.
+            // This is important because disabled controls
+            // are NOT submitted by the browser.
+
+            farmerSelect.disabled = true;
+            fpoSelect.disabled = true;
+
+
+            // Remove required initially
+
+            farmerSelect.removeAttribute("required");
+            fpoSelect.removeAttribute("required");
+
+
+            // -------------------------------------------------
+            // INDEPENDENT FARMER
+            // -------------------------------------------------
+
+            if (type === "FARMER") {
+
+                farmerBox.style.display = "block";
+
+                farmerSelect.disabled = false;
+
+                farmerSelect.setAttribute(
+                    "required",
+                    "required"
+                );
+            }
+
+
+            // -------------------------------------------------
+            // FPO
+            // -------------------------------------------------
+
+            if (type === "FPO") {
+
+                fpoBox.style.display = "block";
+
+                fpoSelect.disabled = false;
+
+                fpoSelect.setAttribute(
+                    "required",
+                    "required"
+                );
+            }
+
+        }
+
+
+        // Run once when page loads
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+                changeScope();
+            }
+        );
+
+    </script>
+
+</section>
+
+</body>
+
+</html>

@@ -1,0 +1,51 @@
+<html th:replace="~{admin/adminbase::layout(~{::section})}">
+	<body>
+		<section>
+			<div class="container p4-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+        
+            <div class="card shadow-lg rounded-4">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4 class="mb-0">Update Profile Picture</h4>
+                </div>
+
+                <div class="card-body text-center">
+
+                    <!-- Current Profile Picture -->
+                    <img th:if="${admininfo.profilepic != null}"
+                         th:src="@{'/ProfilePic/' + ${admininfo.profilepic}}"
+                         alt="Profile Picture"
+                         class="rounded-circle border border-2"
+                         width="150" height="150"/>
+
+                    <img th:if="${admininfo.profilepic == null}"
+                         src="../img/user_img.jpg"
+                         alt="Default Profile"
+                         class="rounded-circle border border-2"
+                         width="150" height="150"/>
+
+                    <hr class="my-4">
+
+                    <!-- Upload Form -->
+                    <form th:action="@{UpdateProfile}" method="post" enctype="multipart/form-data">
+                        <div class="mb-3 text-start">
+                            <label for="file" class="form-label">Select New Profile Picture</label>
+                            <input type="file" name="file" class="form-control" required accept=".png, .jpg, .jpeg, .bmp, .webp">
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success">Upload</button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+		
+		</section>
+	</body>
+</html>

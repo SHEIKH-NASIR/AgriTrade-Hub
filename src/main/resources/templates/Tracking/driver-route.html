@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Driver Delivery Route - Agritrade Hub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { min-height: 100vh; }
+        .route-card { border: 0; border-radius: 16px; box-shadow: 0 6px 25px rgba(0,0,0,.08); }
+        .gps-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; background: #198754; }
+    </style>
+</head>
+<body class="bg-light">
+<div class="container py-4">
+
+    <div class="card route-card mb-3">
+        <div class="card-body">
+            <h3 class="mb-2">🚚 Today's Delivery Route</h3>
+            <p class="text-muted mb-0">
+                One driver link for all deliveries in this optimized route.
+            </p>
+        </div>
+    </div>
+
+    <div class="card route-card mb-3">
+        <div class="card-body">
+            <div id="gpsStatus" class="alert alert-warning">
+                📍 Requesting driver GPS permission...
+            </div>
+
+            <div class="mb-3">
+                <strong>Tracking status:</strong>
+                <span id="trackingText">Waiting for GPS permission...</span>
+            </div>
+
+            <div class="mb-3">
+                <strong>Last GPS update:</strong>
+                <span id="updatedText">—</span>
+            </div>
+
+            <div class="mb-3">
+                <strong>Deliveries covered by this link:</strong>
+                <span class="badge bg-primary" th:text="${#lists.size(shipments)}">0</span>
+            </div>
+
+            <div class="list-group mb-3">
+                <div th:each="shipment,stat : ${shipments}"
+                     class="list-group-item">
+                    <strong>
+                        <span th:text="${stat.count}">1</span>.
+                        Order #<span th:text="${shipment.order.orderId}">1</span>
+                    </strong>
+                    <br>
+                    <span th:text="${shipment.destinationAddress}">Destination</span>
+                </div>
+            </div>
+
+            <button id="retryBtn" type="button" class="btn btn-success w-100 mb-2">
+                📡 Start / Retry Live GPS
+            </button>
+
+            <a th:if="${googleMapsUrl != null and !#strings.isEmpty(googleMapsUrl)}"
+               th:href="${googleMapsUrl}"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="btn btn-primary w-100">
+                🗺 Open Optimized Route in Google Maps
+            </a>
+
+            <div class="small text-muted mt-3">
+                Keep this Agritrade page open while driving so the same GPS location
+                is shared with every merchant in this route.
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script th:inline="javascript">
+const driverToken = /*[[${driverRouteToken}]]*/ '';
+const locationUrl = '/Tracking/driver-route/' + driverToken + '/location';
+let watchId = null;
+
+function setStatus(message, type) {
+    const box = document.getElementById('gpsStatus');
+    box.className = 'alert alert-' + type;
+    box.textContent = message;
+}
+
+function startGps() {
+    if (!navigator.geolocation) {
+        setStatus('GPS is not supported by this browser.', 'danger');
+        return;
+    }
+
+    if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
+    }
+
+    setStatus('📍 Requesting GPS permission / waiting for location...', 'warning');
+    document.getElementById('trackingText').textContent = 'Waiting for first GPS fix...';
+
+    watchId = navigator.geolocation.watchPosition(async function (position) {
+        try {
+            const body = new URLSearchParams({
+                latitude: String(position.coords.latitude),
+                longitude: String(position.coords.longitude)
+            });
+
+            const response = await fetch(locationUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: body
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || 'GPS update failed.');
+            }
+
+            setStatus('🟢 Live GPS tracking is ON. All route shipments are now using the driver location.', 'success');
+            document.getElementById('trackingText').textContent =
+                data.updatedShipments + ' shipment(s) updated';
+            document.getElementById('updatedText').textContent =
+                new Date(data.lastUpdated).toLocaleString();
+        } catch (error) {
+            setStatus('Could not send GPS update: ' + error.message, 'danger');
+        }
+    }, function (error) {
+        setStatus('GPS permission/error: ' + error.message, 'danger');
+        document.getElementById('trackingText').textContent = 'GPS not active.';
+    }, {
+        enableHighAccuracy: true,
+        maximumAge: 5000,
+        timeout: 15000
+    });
+}
+
+document.getElementById('retryBtn').addEventListener('click', startGps);
+
+/* Automatically request GPS when the driver opens the ONE link. */
+startGps();
+</script>
+</body>
+</html>

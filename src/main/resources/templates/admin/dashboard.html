@@ -1,0 +1,300 @@
+<html th:replace="~{admin/adminbase::layout(~{::section})}">
+<head></head>
+
+<body>
+
+<section>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <div class="container-fluid">
+
+        <h4 class="page-title">Dashboard</h4>
+
+        <div class="row mb-5 mt-3">
+            <div class="col text-center">
+
+                <a href="verifiedformer"
+                   class="btn btn-outline-success me-2">
+                    Manage Farmers
+                </a>
+
+                <a href="verifiedmerchant"
+                   class="btn btn-outline-info me-2">
+                    Manage Merchants
+                </a>
+
+                <a href="ViewOrder"
+                   class="btn btn-outline-primary">
+                    View Orders
+                </a>
+
+            </div>
+        </div>
+
+
+        <!-- Dashboard Cards -->
+        <div class="row g-4">
+
+
+            <!-- Total Farmers -->
+            <div class="col-md-3 mb-3">
+
+                <div class="card border-success shadow h-100">
+
+                    <div class="card-body text-center">
+
+                        <h5 class="card-title">
+                            Total Farmers
+                        </h5>
+
+                        <h3 class="text-success"
+                            th:text="${totalFarmers}">
+                            0
+                        </h3>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Total Merchants -->
+            <div class="col-md-3 mb-3">
+
+                <div class="card border-info shadow h-100">
+
+                    <div class="card-body text-center">
+
+                        <h5 class="card-title">
+                            Total Merchants
+                        </h5>
+
+                        <h3 class="text-info"
+                            th:text="${totalMerchants}">
+                            0
+                        </h3>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Total Products -->
+            <div class="col-md-3 mb-3">
+
+                <div class="card border-warning shadow h-100">
+
+                    <div class="card-body text-center">
+
+                        <h5 class="card-title">
+                            Total Products
+                        </h5>
+
+                        <h3 class="text-warning"
+                            th:text="${totalProducts}">
+                            0
+                        </h3>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Total Orders -->
+            <div class="col-md-3 mb-3">
+
+                <div class="card border-primary shadow h-100">
+
+                    <div class="card-body text-center">
+
+                        <h5 class="card-title">
+                            Total Orders
+                        </h5>
+
+                        <h3 class="text-primary"
+                            th:text="${totalOrders}">
+                            0
+                        </h3>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Completed Orders -->
+            <div class="col-md-3 mb-3">
+
+                <div class="card border-success shadow h-50">
+
+                    <div class="card-body text-center">
+
+                        <h5 class="card-title">
+                            Completed Orders
+                        </h5>
+
+                        <h3 class="text-success"
+                            th:text="${completedOrders}">
+                            0
+                        </h3>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Cancelled Orders -->
+            <div class="col-md-3 mb-3">
+
+                <div class="card border-danger shadow h-50">
+
+                    <div class="card-body text-center">
+
+                        <h5 class="card-title">
+                            Cancelled Orders
+                        </h5>
+
+                        <h3 class="text-danger"
+                            th:text="${cancelledOrders}">
+                            0
+                        </h3>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- New Enquiries -->
+            <div class="col-md-3 mb-3">
+
+                <div class="card border-dark shadow h-50">
+
+                    <div class="card-body text-center">
+
+                        <h5 class="card-title">
+                            New Enquiries
+                        </h5>
+
+                        <h3 class="text-dark"
+                            th:text="${newEnquiries}">
+                            0
+                        </h3>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Order Status Chart -->
+            <div class="col-md-3 mb-3">
+
+                <div class="card shadow h-100">
+
+                    <div class="card-body">
+
+                        <h5 class="card-title text-center">
+                            Order Status Overview
+                        </h5>
+
+                        <canvas id="orderStatusChart"
+                                width="400"
+                                height="100%">
+                        </canvas>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Order Status Chart -->
+
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+
+            let completed = /*[[${completedOrders}]]*/ 0;
+            let cancelled = /*[[${cancelledOrders}]]*/ 0;
+
+            const ctx = document
+                .getElementById('orderStatusChart')
+                .getContext('2d');
+
+            const orderChart = new Chart(ctx, {
+
+                type: 'pie',
+
+                data: {
+
+                    labels: [
+                        'Completed Orders',
+                        'Cancelled Orders'
+                    ],
+
+                    datasets: [{
+
+                        data: [
+                            completed,
+                            cancelled
+                        ],
+
+                        backgroundColor: [
+                            '#198754',
+                            '#dc3545'
+                        ],
+
+                        borderColor: [
+                            '#ffffff',
+                            '#ffffff'
+                        ],
+
+                        borderWidth: 2
+
+                    }]
+
+                },
+
+                options: {
+
+                    responsive: true,
+
+                    plugins: {
+
+                        legend: {
+
+                            position: 'bottom'
+
+                        }
+
+                    }
+
+                }
+
+            });
+
+            /*]]>*/
+        </script>
+
+
+    </div>
+
+</section>
+
+</body>
+
+</html>

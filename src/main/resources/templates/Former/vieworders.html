@@ -1,0 +1,348 @@
+<html th:replace="~{Former/formerbase::layout(~{::section})}">
+<head></head>
+<body>
+<section>
+<div class="row" style="margin-top:-30px;">
+<div class="container">
+<div class="row">
+<div class="card w-100">
+
+    <div class="card-header">
+        <div class="row">
+            <div class="col-md-7">
+                <div class="card-title"><span th:text="${demoMode} ? 'Demo Orders Received' : 'Orders Recieved'">Orders Recieved</span></div>
+            </div>
+            <div class="col-md-5 d-flex align-items-center text-right">
+                <label class="w-50 px-3">Filter by Status</label>
+                <select class="form-control w-50" id="statusFilter">
+                    <option value="">All Orders</option>
+                    <option value="Confirmed">Confirmed</option>
+                    <option value="Delivered">Delivered</option>
+                    <option value="Cancelled">Cancelled</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body"><div th:if="${demoMode}" class="alert alert-info">🧪 Demo orders only — continue through shipment to test AI route optimization. <a class="btn btn-sm btn-outline-primary ms-2" th:href="@{/Former/Shipments(demo=true)}">View Demo Shipments & Route</a></div>
+
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+        <div class="table-responsive">
+        <table class="table table-bordered table-hover text-center" id="example">
+            <thead class="table-success">
+            <tr>
+                <th>Sr. No</th>
+                <th>Merchant</th>
+                <th>Product</th>
+                <th>Qty</th>
+                <th>Price/Unit</th>
+                <th>Total Payment</th>
+                <th>Status</th>
+                <th>Order Date</th>
+                <th>Delivery Date</th>
+                <th>Pay Slip</th>
+                <th>Update Status</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <th:block th:each="order, srno : ${orders}">
+
+                <tr th:data-status="${order.orderStatus}"
+                    th:classappend="${(order.orderStatus == 'Cancelled') ? 'table-danger':(order.orderStatus == 'Delivered') ? 'table-success' : (order.orderStatus == 'Confirmed') ? 'table-warning' : ''}">
+
+                    <td th:text="${srno.index+1}">1</td>
+                    <td th:text="${order.merchant != null ? order.merchant.name : 'N/A'}">Merchant Name</td>
+                    <td th:text="${order.productName}">Rice</td>
+                    <td th:text="${order.quantity}">100</td>
+                    <td th:text="'₹ '+${order.pricePerUnit}">50</td>
+                    <td th:text="'₹ '+ ${order.quantity * order.pricePerUnit}">5000</td>
+
+                    <td>
+                        <span class="badge text-white"
+                              th:classappend="${order.orderStatus == 'Pending'} ? 'bg-warning' : (${order.orderStatus == 'Confirmed'} ? 'bg-primary' :(${order.orderStatus == 'Delivered'} ? 'bg-success' : 'bg-danger'))"
+                              th:text="${order.orderStatus}">
+                        </span>
+                    </td>
+
+                    <td th:text="${#temporals.format(order.orderDate, 'dd-MM-yyyy HH:mm')}"></td>
+                    <td th:text="${order.deliveredDate != null ? #temporals.format(order.deliveredDate, 'dd-MM-yyyy HH:mm') : 'No Records'}"></td>
+
+                    <td>
+                        <a th:href="@{ViewPaymentSlip(id = ${order.orderId})}">View Pay Slip</a>
+                    </td>
+
+                    <td class="p-1">
+
+                        <a th:if="${order.orderStatus == 'Confirmed' and shipmentMap[order.orderId] == null}"
+                           th:href="@{/Former/Shipments/Create(orderId=${order.orderId})}"
+                           class="btn btn-sm btn-primary mb-1">
+                            🚚 Create Shipment
+                        </a>
+
+                        <span th:if="${shipmentMap[order.orderId] != null and shipmentMap[order.orderId].status == 'IN_TRANSIT' and !shipmentMap[order.orderId].merchantReceived}"
+                              class="badge bg-info d-block mb-1">
+                            🛣️ In Transit
+                        </span>
+
+                        <span th:if="${shipmentMap[order.orderId] != null and shipmentMap[order.orderId].merchantReceived and shipmentMap[order.orderId].status != 'DELIVERED'}"
+                              class="badge bg-success d-block mb-1">
+                            ✅ Merchant Received
+                        </span>
+
+                        <!-- Farmer can mark Delivered only AFTER merchant confirms goods received. -->
+                        <form th:if="${shipmentMap[order.orderId] != null
+                                      and shipmentMap[order.orderId].status == 'IN_TRANSIT'
+                                      and shipmentMap[order.orderId].merchantReceived
+                                      and order.orderStatus != 'Delivered'}"
+                              th:action="@{'/Former/Shipments/' + ${shipmentMap[order.orderId].id} + '/Status'}"
+                              method="post"
+                              class="d-inline">
+
+                            <input type="hidden" name="newStatus" value="DELIVERED">
+
+                            <button type="submit"
+                                    class="btn btn-success btn-sm">
+                                🚚 Mark Delivered
+                            </button>
+                        </form>
+
+                        <span th:if="${order.orderStatus == 'Delivered' or (shipmentMap[order.orderId] != null and shipmentMap[order.orderId].status == 'DELIVERED')}"
+                              class="badge bg-success d-block">
+                            ✅ Delivered
+                        </span>
+
+                    </td>
+                </tr>
+
+                <!-- =====================================================
+                     MERCHANT DELAY / FARMER EDIT + RESOLVE PANEL
+                     Every delay field has its own Edit button.
+                     ===================================================== -->
+                <tr th:if="${shipmentMap[order.orderId] != null
+                            and shipmentMap[order.orderId].status == 'IN_TRANSIT'
+                            and shipmentMap[order.orderId].delayReported
+                            and !shipmentMap[order.orderId].delayResolved}">
+                    <td colspan="11" class="p-2">
+
+                        <div class="card border-danger shadow-sm text-start">
+
+                            <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+                                <strong>⚠️ MERCHANT REPORTED DELIVERY DELAY</strong>
+                                <span class="badge bg-light text-danger">Action Required</span>
+                            </div>
+
+                            <div class="card-body">
+
+                                <div class="alert alert-warning">
+                                    <strong>Merchant's original report:</strong><br>
+                                    <span th:text="${shipmentMap[order.orderId].delayMessage != null ? shipmentMap[order.orderId].delayMessage : 'No message provided'}">
+                                        Delay message
+                                    </span>
+                                </div>
+
+                                <form th:action="@{'/Former/Shipments/' + ${shipmentMap[order.orderId].id} + '/ResolveDelay'}"
+                                      method="post"
+                                      class="delay-edit-form">
+
+                                    <div class="row">
+
+                                        <!-- DELAY REASON -->
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-bold">Delay Reason</label>
+                                            <div class="input-group">
+                                                <input type="text"
+                                                       name="delayReason"
+                                                       class="form-control editable-delay"
+                                                       th:value="${shipmentMap[order.orderId].delayReason}"
+                                                       readonly>
+                                                <button type="button"
+                                                        class="btn btn-outline-primary edit-delay-btn">
+                                                    ✏️ Edit
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <!-- DELAY MESSAGE -->
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-bold">Delay Message</label>
+                                            <div class="input-group">
+                                                <textarea name="delayMessage"
+                                                          class="form-control editable-delay"
+                                                          rows="2"
+                                                          readonly
+                                                          th:text="${shipmentMap[order.orderId].delayMessage}"></textarea>
+                                                <button type="button"
+                                                        class="btn btn-outline-primary edit-delay-btn">
+                                                    ✏️ Edit
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <!-- PICKUP -->
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-bold">Pickup Address</label>
+                                            <div class="input-group">
+                                                <textarea name="pickupAddress"
+                                                          class="form-control editable-delay"
+                                                          rows="2"
+                                                          readonly
+                                                          th:text="${shipmentMap[order.orderId].pickupAddress}"></textarea>
+                                                <button type="button" class="btn btn-outline-primary edit-delay-btn">✏️ Edit</button>
+                                            </div>
+                                        </div>
+
+                                        <!-- DESTINATION -->
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-bold">Destination Address</label>
+                                            <div class="input-group">
+                                                <textarea name="destinationAddress"
+                                                          class="form-control editable-delay"
+                                                          rows="2"
+                                                          readonly
+                                                          th:text="${shipmentMap[order.orderId].destinationAddress}"></textarea>
+                                                <button type="button" class="btn btn-outline-primary edit-delay-btn">✏️ Edit</button>
+                                            </div>
+                                        </div>
+
+                                        <!-- TRANSPORTER -->
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-bold">Transporter Name</label>
+                                            <div class="input-group">
+                                                <input type="text"
+                                                       name="transporterName"
+                                                       class="form-control editable-delay"
+                                                       th:value="${shipmentMap[order.orderId].transporterName}"
+                                                       readonly>
+                                                <button type="button" class="btn btn-outline-primary edit-delay-btn">✏️ Edit</button>
+                                            </div>
+                                        </div>
+
+                                        <!-- VEHICLE -->
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-bold">Vehicle Number</label>
+                                            <div class="input-group">
+                                                <input type="text"
+                                                       name="vehicleNumber"
+                                                       class="form-control editable-delay"
+                                                       th:value="${shipmentMap[order.orderId].vehicleNumber}"
+                                                       readonly>
+                                                <button type="button" class="btn btn-outline-primary edit-delay-btn">✏️ Edit</button>
+                                            </div>
+                                        </div>
+
+                                        <!-- ETA -->
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-bold">Estimated Delivery / New ETA</label>
+                                            <div class="input-group">
+                                                <input type="datetime-local"
+                                                       name="newEta"
+                                                       class="form-control editable-delay"
+                                                       th:value="${shipmentMap[order.orderId].estimatedDeliveryDate != null ? #temporals.format(shipmentMap[order.orderId].estimatedDeliveryDate, 'yyyy-MM-dd''T''HH:mm') : ''}"
+                                                       readonly>
+                                                <button type="button" class="btn btn-outline-primary edit-delay-btn">✏️ Edit</button>
+                                            </div>
+                                        </div>
+
+                                        <!-- RESOLUTION -->
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-bold">Resolution / Action Taken</label>
+                                            <div class="input-group">
+                                                <textarea name="resolutionMessage"
+                                                          class="form-control editable-delay"
+                                                          rows="3"
+                                                          required
+                                                          placeholder="Explain what you changed/fixed to resume delivery."></textarea>
+                                                <button type="button" class="btn btn-outline-primary edit-delay-btn">✏️ Edit</button>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="d-flex gap-2 mt-2">
+                                        <button type="submit" class="btn btn-success">
+                                            ✅ Save All Changes & Resolve Delay
+                                        </button>
+                                        <button type="reset" class="btn btn-secondary">
+                                            Reset
+                                        </button>
+                                    </div>
+
+                                    <small class="text-muted d-block mt-2">
+                                        You can edit every field above before resolving the delay. After saving,
+                                        the shipment remains <strong>IN TRANSIT</strong> and delivery continues.
+                                    </small>
+
+                                </form>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- RESOLVED DELAY -->
+                <tr th:if="${shipmentMap[order.orderId] != null and shipmentMap[order.orderId].delayResolved}">
+                    <td colspan="11" class="p-2">
+                        <div class="alert alert-success text-start mb-0">
+                            <strong>✅ Delay Resolved</strong>
+                            <span th:if="${shipmentMap[order.orderId].delayResolvedAt != null}">
+                                on
+                                <span th:text="${#temporals.format(shipmentMap[order.orderId].delayResolvedAt, 'dd-MM-yyyy HH:mm')}"></span>
+                            </span>
+                            <br>
+                            <strong>Resolution:</strong>
+                            <span th:text="${shipmentMap[order.orderId].delayResolutionMessage != null ? shipmentMap[order.orderId].delayResolutionMessage : 'Delay resolved.'}"></span>
+                            <br>
+                            <strong>Delivery Status:</strong> Shipment continues in transit.
+                        </div>
+                    </td>
+                </tr>
+
+            </th:block>
+            </tbody>
+        </table>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+
+<input type="hidden" id="msg" th:if="${msg}" th:value="${msg}">
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.edit-delay-btn').forEach(function (button) {
+        button.addEventListener('click', function () {
+            const field = this.parentElement.querySelector('.editable-delay');
+            if (!field) return;
+
+            field.removeAttribute('readonly');
+            field.focus();
+            this.textContent = '✓ Editing';
+            this.classList.remove('btn-outline-primary');
+            this.classList.add('btn-primary');
+        });
+    });
+});
+</script>
+
+<script type="text/javascript">
+var msg = document.getElementById("msg");
+if (msg && msg.value != "") {
+    alert(msg.value);
+}
+</script>
+
+<script th:if="${success}">
+Swal.fire({
+    title: 'Updated!',
+    text: 'Shipment delay changes saved successfully.',
+    icon: 'success',
+    confirmButtonText: 'OK'
+});
+</script>
+
+</section>
+</body>
+</html>

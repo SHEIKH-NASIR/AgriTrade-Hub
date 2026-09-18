@@ -1,0 +1,67 @@
+<html th:replace="~{admin/adminbase::layout(~{::section})}">
+ 	<head></head>
+ 	
+ 	<body>
+ 		<section>
+ 			<div class="container-fluid">
+ 				<div class="row">
+ 					<div class="card w-100">
+ 						<div class="card-header">
+ 							<div class="card-title">
+ 								List of Login Disabled Merchants 
+ 							</div>
+ 						</div>
+ 						
+ 						<div class="card-body">
+ 							<div class="table-responsive">
+ 								<table class="table table-bordered table-hover scrollbar-table" id="example">
+ 									<thead>
+ 										<tr class="text-center">
+ 											<th>Sr. No.</th>
+ 											<th>Name</th>
+ 											<th>Profile Picture</th>
+ 											<th>Contact No.</th>
+ 											<th>Email Address</th>
+ 											<th>Aadhar No</th>
+ 											<th>Pan Card No</th>
+ 											<th>Address</th>
+ 											<th>Registration Date</th>
+ 											<!-- <th>Delete</th> -->
+ 											<th>Status</th>
+ 										</tr>
+ 									</thead>
+ 									<tbody>
+ 										<tr th:each="m, srno:${MList}">
+ 											<td class="text-center" th:text="${srno.index+1}">1.</td>
+ 											<td th:text="${m.name}">Manish Yadav</td>
+ 											<td class="text-center">
+ 												<img alt="Image Not Found..." class="profile-img" style="width: 45px;" th:if="${m.profilepic}" th:src="@{'/ProfilePic/' + ${m.profilepic}}">
+ 												<img alt="Image Not Found..." class="profile-img" style="width: 45px;" th:unless="${m.profilepic}" src="../img/user_img.jpg">
+ 											</td>
+ 											<td th:text="${m.contactno}" class="text-center">1234567890</td>
+ 											<td th:text="${m.email}">example@gmail.com</td>
+ 											<td th:text="${m.aadharno}">00000000</td>
+ 											<td th:text="${m.pancardno}"></td>
+ 											<td th:text="${m.address}">address</td>
+ 											<td th:text="${m.regdate}" class="text-center">11/11/2024</td>
+ 											<!-- <td class="text-center">
+ 												<a th:href="@{deletemerchant(id=${m.id})}" class="text-decoration-none">
+ 													<button type="button" class="btn btn-danger rounded-0" onclick="return confirm('Are you sure want to delete?')">Delete</button>
+ 												</a>
+ 											</td> -->
+ 											
+ 											<td>
+ 												<a th:href="@{merchantstatus(id=${m.id})}" class="btn btn-danger rounded-0 px-4 py-2">Disabled</a>
+ 											</td>
+ 										</tr>
+ 									</tbody>
+ 								</table>
+ 							</div>
+ 						</div>
+ 					</div>
+ 				</div>
+ 			</div>
+ 			
+ 		</section>
+ 	</body>
+</html>

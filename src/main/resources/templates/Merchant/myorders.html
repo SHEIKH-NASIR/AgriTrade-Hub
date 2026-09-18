@@ -1,0 +1,157 @@
+<html th:replace="~{Merchant/merchantbase::layout(~{::section})}">
+<body>
+	<section>
+		<div class="row">
+			<div class="container p-0">
+				<div class="row">
+					<div class="card w-100">
+					<div class="card-header">
+						<div class="row">
+							<div class="col-md-8">
+								<div class="card-title"><span th:text="${demoMode} ? 'Demo Orders' : 'My Orders'">My Orders</span></div>
+							</div>
+							<div class="col-md-4">
+								<!-- Filter Dropdown -->
+								<select class="form-control" id="statusFilter">
+									<option value="">All Orders</option>
+									<option value="Pending">Pending</option>
+					<option value="Confirmed">Confirmed</option>
+									<option value="Delivered">Delivered</option>
+									<option value="Cancelled">Cancelled</option>
+								</select>
+							</div>
+						</div>
+					</div>
+
+					<div class="card-body"><div th:if="${demoMode}" class="alert alert-info">🧪 Demo orders only. Razorpay was skipped; shipment workflow is real.</div>
+						<!-- Orders Table -->
+				
+						<div class="table-responsive">
+							<table class="table table-bordered align-middle" id="example">
+							  <thead>
+								<tr>
+								<th>ID</th>
+								<th>Seller / FPO</th>
+								<th>Product</th>
+								<th>Qty</th>
+								<th>Price/Unit</th>
+								<th>Total Price</th>
+								<th>Status</th>
+								<th>Shipment Status</th>
+								<th>Order Date</th>
+								<th>Delivery Date</th>
+								<th>Action</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="order, srno : ${orderList}" th:data-status="${order.orderStatus}">
+								<td th:text="${srno.index+1}">1</td>
+								<td th:text="${order.fpo != null ? order.fpo.name : (order.farmer != null ? order.farmer.name : 'N/A')}">Seller</td>
+								<td th:text="${order.productName}">Wheat</td>
+								<td th:text="${order.quantity}">50</td>
+								<td th:text="${order.pricePerUnit}">100.00</td>
+								<td th:text="${order.quantity * order.pricePerUnit}">5000</td>
+								<td class="text-center">
+									<div class="d-flex flex-column gap-1 align-items-center">
+										<span class="badge"
+											th:classappend="${order.orderStatus == 'Pending'} ? 'bg-warning text-dark' : (${order.orderStatus == 'Confirmed'} ? 'bg-primary' : (${order.orderStatus == 'Delivered'} ? 'bg-success' : 'bg-danger'))"
+											th:text="${order.orderStatus}">
+											Confirmed
+										</span>
+
+										<a th:if="${order.orderStatus == 'Confirmed' or (order.orderStatus == 'Pending' and order.fpo != null)}"
+										   th:href="@{CancelOrder(id=${order.orderId})}"
+										   class="btn btn-danger btn-sm">
+											Cancel Order
+										</a>
+
+										<form th:if="${shipmentMap[order.orderId] != null and shipmentMap[order.orderId].status == 'IN_TRANSIT' and !shipmentMap[order.orderId].merchantReceived}"
+											  th:action="@{'/Merchant/Shipments/' + ${shipmentMap[order.orderId].id} + '/ConfirmReceived'}"
+											  method="post">
+											<button class="btn btn-success btn-sm">✅ Confirm Goods Received</button>
+										</form>
+
+										<button th:if="${shipmentMap[order.orderId] != null and shipmentMap[order.orderId].status == 'IN_TRANSIT' and !shipmentMap[order.orderId].merchantReceived}"
+												type="button"
+												class="btn btn-warning btn-sm"
+												data-toggle="modal"
+												th:data-target="${'#delayModal' + order.orderId}">
+											⚠️ Report Delay
+										</button>
+
+										<span th:if="${shipmentMap[order.orderId] != null and shipmentMap[order.orderId].merchantReceived}"
+											  class="badge bg-success">
+											Goods Received
+										</span>
+
+										<span th:if="${order.orderStatus == 'Delivered'}">✅ Delivered</span>
+									</div>
+								</td>
+
+								<td class="text-center">
+									<span th:if="${shipmentMap[order.orderId] == null}"
+										  class="badge bg-secondary">
+										No Shipment Yet
+									</span>
+
+									<span th:if="${shipmentMap[order.orderId] != null}"
+										  class="badge"
+										  th:classappend="${shipmentMap[order.orderId].status == 'READY_FOR_PICKUP'} ? 'bg-warning text-dark' : (${shipmentMap[order.orderId].status == 'DISPATCHED'} ? 'bg-primary' : (${shipmentMap[order.orderId].status == 'IN_TRANSIT'} ? 'bg-info text-dark' : (${shipmentMap[order.orderId].status == 'DELIVERED'} ? 'bg-success' : 'bg-danger')))"
+										  th:text="${shipmentMap[order.orderId].status}">
+										READY_FOR_PICKUP
+											</span>
+                                    <a th:if="${shipmentMap[order.orderId] != null and shipmentMap[order.orderId].status != 'DELIVERED' and shipmentMap[order.orderId].status != 'CANCELLED'}" th:href="@{'/Tracking/' + ${shipmentMap[order.orderId].id}}" class="btn btn-info btn-sm mt-1">📍 Live Track</a>
+										</td>
+
+								<td th:text="${#temporals.format(order.orderDate, 'dd-MM-yyyy HH:mm')}"></td>
+								<td th:text="${order.deliveredDate != null ? #temporals.format(order.deliveredDate, 'dd-MM-yyyy HH:mm') : 'No Records'}"></td>
+								<td class="text-center">
+    								<div th:if="${order.orderStatus == 'Delivered'}" class="mt-1">
+                                        <button th:if="${!@reviewService.hasReview(order, session.loggedInMerchant)}" type="button" class="btn btn-outline-warning btn-sm" data-toggle="modal" th:data-target="${'#reviewModal' + order.orderId}">⭐ Rate Farmer/FPO</button><span th:if="${@reviewService.hasReview(order, session.loggedInMerchant)}" class="badge bg-success">✓ Reviewed</span>
+                                        <button type="button" class="btn btn-outline-danger btn-sm" data-toggle="modal" th:data-target="${'#disputeModal' + order.orderId}">🚨 Report a Problem</button>
+                                    </div>
+
+                                    <!-- Show Cancel button only if orderStatus is Confirmed -->
+    								<a th:if="${order.orderStatus == 'Confirmed' or (order.orderStatus == 'Pending' and order.fpo != null)}" th:href="@{CancelOrder(id=${order.orderId})}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure want to cancel?')">
+        								Cancel Order
+    								</a>
+
+    								<!-- Show ❌ if orderStatus is Cancelled -->
+    								<span th:if="${order.orderStatus == 'Cancelled'}" style="font-size: 1.2rem;">❌</span>
+
+    								<!-- Show ✅ if orderStatus is Delivered -->
+    								<span th:if="${order.orderStatus == 'Delivered'}" style="font-size: 1.2rem;">✅</span>
+								</td>
+											
+							</tr>
+						</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+					
+				</div>
+				
+			</div>
+
+		</div>
+		
+<div th:each="order : ${orderList}" th:if="${shipmentMap[order.orderId] != null and shipmentMap[order.orderId].status == 'IN_TRANSIT' and !shipmentMap[order.orderId].merchantReceived}" class="modal fade" th:id="${'delayModal' + order.orderId}" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5>Report Delivery Delay</h5></div><form th:action="@{'/Merchant/Shipments/' + ${shipmentMap[order.orderId].id} + '/Delay'}" method="post"><div class="modal-body"><select name="delayReason" class="form-control mb-3" required><option value="">Select reason</option><option value="Shipment delayed">Shipment delayed</option><option value="Vehicle problem">Vehicle problem</option><option value="Wrong destination">Wrong destination</option><option value="Produce not received">Produce not received</option><option value="Other">Other</option></select><textarea name="delayMessage" class="form-control" rows="4" required></textarea></div><button class="btn btn-warning m-3">Send Delay Report</button></form></div></div></div><!-- Filter Script -->
+<div th:each="order : ${orderList}" th:if="${order.orderStatus == 'Delivered'}" class="modal fade" th:id="${'reviewModal' + order.orderId}" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5>⭐ Review Seller</h5><button type="button" class="close" data-dismiss="modal">&times;</button></div><form th:action="@{'/Merchant/Reviews/' + ${order.orderId}}" method="post"><div class="modal-body"><p><b>Seller:</b> <span th:text="${order.fpo != null ? order.fpo.name : (order.farmer != null ? order.farmer.name : 'Seller')}"></span></p><label>Overall rating</label><select name="rating" class="form-control mb-2" required><option value="5">★★★★★ 5</option><option value="4">★★★★ 4</option><option value="3">★★★ 3</option><option value="2">★★ 2</option><option value="1">★ 1</option></select><div class="row"><div class="col"><label>Quality</label><select name="qualityRating" class="form-control"><option value="5">5</option><option value="4">4</option><option value="3">3</option><option value="2">2</option><option value="1">1</option></select></div><div class="col"><label>Quantity</label><select name="quantityAccuracyRating" class="form-control"><option value="5">5</option><option value="4">4</option><option value="3">3</option><option value="2">2</option><option value="1">1</option></select></div><div class="col"><label>Timeliness</label><select name="timelinessRating" class="form-control"><option value="5">5</option><option value="4">4</option><option value="3">3</option><option value="2">2</option><option value="1">1</option></select></div></div><textarea name="comment" class="form-control mt-3" rows="4" maxlength="1500" placeholder="Share your experience..."></textarea></div><div class="modal-footer"><button class="btn btn-warning">Submit Verified Review</button></div></form></div></div></div>
+<div th:each="order : ${orderList}" th:if="${order.orderStatus == 'Delivered'}" class="modal fade" th:id="${'disputeModal' + order.orderId}" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5>🚨 Raise Post-delivery Dispute</h5><button type="button" class="close" data-dismiss="modal">&times;</button></div><form th:action="@{'/Merchant/Disputes/' + ${order.orderId}}" method="post"><div class="modal-body"><p class="small text-muted">Order #<span th:text="${order.orderId}"></span> is automatically attached. Admin will receive this in the existing Enquiry section.</p><select name="reason" class="form-control mb-2" required><option value="">Select issue</option><option>Wrong quantity</option><option>Poor product quality</option><option>Damaged goods</option><option>Wrong product</option><option>Product not received</option><option>Other</option></select><div class="row g-2 mb-2"><div class="col-md-6"><label class="form-label">Quantity ordered</label><input class="form-control" value="" th:value="${order.quantity}" readonly></div><div class="col-md-6"><label class="form-label">Quantity received (optional)</label><input name="quantityReceived" type="number" step="0.01" class="form-control" placeholder="e.g. 450"></div></div><textarea name="description" class="form-control" rows="5" maxlength="2500" required placeholder="Explain the problem in detail..."></textarea><input name="evidenceReference" class="form-control mt-2" maxlength="255" placeholder="Evidence reference (optional)"></div><div class="modal-footer"><button class="btn btn-danger">Submit Dispute</button></div></form></div></div></div>
+<script>
+    const filter = document.getElementById("statusFilter");
+    const rows = document.querySelectorAll("#example tbody tr");
+
+    filter.addEventListener("change", function() {
+        const selected = this.value;
+        rows.forEach(row => {
+            const status = row.getAttribute("data-status");
+            row.style.display = (!selected || status === selected) ? "" : "none";
+        });
+    });
+</script>
+		
+	</section>
+</body>
+</html>

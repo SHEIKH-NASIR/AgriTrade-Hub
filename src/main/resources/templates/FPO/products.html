@@ -1,0 +1,117 @@
+<html th:replace="~{FPO/fpobase::layout(~{::section})}">
+<section>
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h3>📦 FPO Bulk Products</h3>
+            <p class="text-muted mb-0">Only produce that FPO members marked as <strong>FPO Contribution</strong> is eligible for aggregation.</p>
+        </div>
+    </div>
+
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+    <div class="card p-4 mb-4">
+        <h5>Create Bulk Product From Member Produce</h5>
+        <p class="text-muted">The quantity is calculated automatically from member farmer products already committed to this FPO. The same quantity will not appear in the normal merchant Products list.</p>
+        <form th:action="@{/FPO/Products/Add}" method="post" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Product</label>
+                <select name="sourceKey" id="candidateProduct" class="form-control" required>
+                    <option value="">-- Select committed product --</option>
+                    <option th:each="entry : ${committedSummary.entrySet()}"
+                            th:value="${entry.key.replace(' | ', '||')}"
+                            th:text="${entry.key + ' → ' + entry.value + ' kg'}"></option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Category</label>
+                <input type="text" id="candidateCategory" class="form-control" placeholder="Selected automatically" readonly>
+                <small class="text-muted">Category comes from the selected member produce.</small>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Bulk Price / Unit (₹)</label>
+                <input type="number" name="pricePerUnit" step="0.01" min="0.01" class="form-control" required>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Minimum Bulk</label>
+                <input type="number" name="minimumBulkQuantity" min="1" class="form-control" required>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Maximum Bulk</label>
+                <input type="number" name="maxBulkQuantity" min="0" class="form-control" placeholder="0 = no limit" required>
+            </div>
+            <div class="col-md-1 d-flex align-items-end">
+                <button type="submit" class="btn btn-success w-100">Create</button>
+            </div>
+        <div id="fairPriceBox" class="alert alert-secondary mt-2 d-none"></div>
+        </form>
+        <div class="alert alert-info mt-3 mb-0" th:if="${#lists.isEmpty(committedProducts)}">No farmer has currently committed produce to this FPO. Ask the member farmers to add their produce using <strong>FPO Contribution</strong> selling mode.</div>
+    </div>
+
+    <div class="card p-3 mb-4" th:if="${!#lists.isEmpty(committedProducts)}">
+        <h5>Committed Member Produce Waiting for Aggregation</h5>
+        <div class="table-responsive">
+            <table class="table table-sm table-bordered align-middle">
+                <thead class="table-light"><tr><th>Farmer</th><th>Email</th><th>Product</th><th>Category</th><th>Quantity</th><th>Mode</th></tr></thead>
+                <tbody>
+                <tr th:each="p : ${committedProducts}">
+                    <td th:text="${p.farmer.name}">Farmer</td>
+                    <td th:text="${p.farmer.email}">email</td>
+                    <td th:text="${p.productName}">Rice</td>
+                    <td th:text="${p.category}">Grain</td>
+                    <td th:text="${p.quantity}">0</td>
+                    <td><span class="badge bg-primary">FPO Contribution</span></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body table-responsive">
+            <h5>My Aggregated Products</h5>
+            <table class="table table-bordered table-hover align-middle text-center">
+                <thead class="table-success">
+                <tr><th>Product</th><th>Category</th><th>Total</th><th>Available</th><th>Price / Unit</th><th>Minimum Bulk</th><th>Status</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="product : ${products}">
+                    <td th:text="${product.productName}"></td>
+                    <td th:text="${product.category}"></td>
+                    <td th:text="${product.totalQuantity}"></td>
+                    <td th:text="${product.availableQuantity}"></td>
+                    <td th:text="'₹ ' + ${product.pricePerUnit}"></td>
+                    <td th:text="${product.minimumBulkQuantity}"></td>
+                    <td><span class="badge bg-success" th:if="${product.status == 'Available'}">Available</span><span class="badge bg-secondary" th:unless="${product.status == 'Available'}" th:text="${product.status}"></span></td>
+                    <td>
+                        <div class="d-flex flex-wrap justify-content-center gap-2">
+                            <a class="btn btn-sm btn-primary" th:href="@{/FPO/Products/Edit(productId=${product.id})}">✏️ Edit Price</a>
+                            <a class="btn btn-sm btn-outline-success" th:href="@{/FPO/Products/Contributions(productId=${product.id})}">👨‍🌾 Manage Farmers</a>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(products)}"><td colspan="8" class="text-muted">No bulk products created yet.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+ const select=document.getElementById('candidateProduct');
+ const cat=document.getElementById('candidateCategory');
+ select.addEventListener('change', function(){
+   const parts=this.value.split('||');
+   cat.value=parts.length>1 ? parts[1] : '';
+ });
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+ const source=document.querySelector('#candidateProduct'), n=document.querySelector('[name="productName"]'), c=document.querySelector('[name="category"]')||document.querySelector('#candidateCategory'), p=document.querySelector('[name="pricePerUnit"]'), box=document.getElementById('fairPriceBox');
+ function check(){let productName=n?.value||'';let category=c?.value||'';if(source&&source.value){const parts=source.value.split('||');productName=parts[0]||'';category=parts[1]||category;}if(!productName||!category||!p||!p.value)return;fetch(`/FPO/Products/fair-price?productName=${encodeURIComponent(productName)}&category=${encodeURIComponent(category)}&price=${encodeURIComponent(p.value)}`).then(r=>r.json()).then(d=>{box.classList.remove('d-none');box.textContent=d.status==='FAIR'?`✅ Fair price. Reference ₹${d.referencePrice}; range ₹${d.lowerFairPrice}–₹${d.upperFairPrice}.`:d.status==='ABOVE_MARKET'?`⚠️ Above fair range. Reference ₹${d.referencePrice}; upper limit ₹${d.upperFairPrice}.`:d.status==='BELOW_MARKET'?`ℹ️ Below market reference. Reference ₹${d.referencePrice}; range ₹${d.lowerFairPrice}–₹${d.upperFairPrice}.`:d.message;});}
+ [n,c,p].forEach(x=>x&&x.addEventListener('input',check)); [n,c,p].forEach(x=>x&&x.addEventListener('change',check));
+});
+</script></section>
+</html>

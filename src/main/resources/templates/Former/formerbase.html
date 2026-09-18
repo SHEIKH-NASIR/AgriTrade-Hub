@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org"
+      th:fragment="layout(content)">
+
+<head>
+
+    <meta http-equiv="X-UA-Compatible"
+          content="IE=edge,chrome=1" />
+
+    <title>Former Zone - Agritrade Hub</title>
+
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0,
+                   user-scalable=0, shrink-to-fit=no"
+          name="viewport" />
+
+    <link rel="stylesheet"
+          th:href="@{/assets/css/bootstrap.min.css}">
+
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,500,600,600i,700,800,900">
+
+    <link rel="stylesheet"
+          type="text/css"
+          href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
+
+    <link rel="stylesheet"
+          type="text/css"
+          href="https://cdn.datatables.net/buttons/1.6.1/css/buttons.dataTables.min.css">
+
+    <link rel="stylesheet"
+          href="https://cdn.datatables.net/2.1.3/css/dataTables.bootstrap5.css" />
+
+    <link rel="stylesheet"
+          th:href="@{/assets/css/ready.css}">
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script th:src="@{/assets/js/core/jquery.3.2.1.min.js}"></script>
+
+    <style type="text/css">
+        td,
+        th {
+            white-space: nowrap !important;
+        }
+    </style>
+
+</head>
+
+<body>
+
+<div class="wrapper">
+
+
+    <!-- =========================================================
+         HEADER
+         ========================================================= -->
+
+    <div class="main-header">
+
+
+        <!-- LOGO -->
+
+        <div class="logo-header text-center">
+
+            <a th:href="@{/Former/Dashboard}"
+               class="logo">
+
+                Agritrade Hub
+
+            </a>
+
+            <button class="navbar-toggler sidenav-toggler ml-auto"
+                    type="button"
+                    data-toggle="collapse"
+                    data-target="collapse"
+                    aria-controls="sidebar"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation">
+
+                <span class="navbar-toggler-icon"></span>
+
+            </button>
+
+            <button class="topbar-toggler more">
+
+                <i class="la la-ellipsis-v"></i>
+
+            </button>
+
+        </div>
+
+
+        <!-- TOP NAVBAR -->
+
+        <nav class="navbar navbar-header navbar-expand-lg">
+
+            <div class="container-fluid">
+
+                <ul class="navbar-nav topbar-nav ml-md-auto align-items-center">
+
+
+                    <!-- =====================================================
+                         NOTIFICATIONS
+                         ===================================================== -->
+
+                    <li class="nav-item dropdown hidden-caret">
+
+                        <a class="nav-link dropdown-toggle"
+                           href="#"
+                           id="navbarDropdown"
+                           role="button"
+                           data-toggle="dropdown"
+                           aria-haspopup="true"
+                           aria-expanded="false">
+
+                            <i class="la la-bell"></i>
+
+                            <span class="notification"
+                                  th:text="${pendingOrderCount}">
+                                4
+                            </span>
+
+                        </a>
+
+
+                        <ul class="dropdown-menu notif-box"
+                            aria-labelledby="navbarDropdown">
+
+
+                            <li>
+
+                                <div class="dropdown-title">
+
+                                    You have
+
+                                    <span th:text="${pendingOrderCount}">
+                                    </span>
+
+                                    new notification
+
+                                </div>
+
+                            </li>
+
+
+                            <li>
+
+                                <div class="notif-center">
+
+
+                                    <a href="#"
+                                       th:each="order : ${pendingOrders}">
+
+                                        <div class="notif-img">
+
+                                            <img th:src="${order.farmer != null and order.farmer.profilepic != null}
+                                                ? @{'/ProfilePic/' + order.farmer.profilepic}
+                                                : @{../img/user_img.jpg}"
+                                                 alt="Img Profile">
+
+                                        </div>
+
+
+                                        <div class="notif-content">
+
+                                            <span class="block"
+                                                  th:text="${order.merchant.name} + ' is ordred ' + ${order.productName} + ' (' + ${order.quantity} + 'kg)'">
+
+                                                Reza send messages to you
+
+                                            </span>
+
+
+                                            <span class="time"
+                                                  th:attr="data-time=${order.orderDate}">
+
+                                                Just now
+
+                                            </span>
+
+                                        </div>
+
+                                    </a>
+
+
+                                    <div th:if="${pendingOrders == null or #lists.isEmpty(pendingOrders)}">
+
+                                        <a class="dropdown-item">
+
+                                            No orders notifications
+
+                                        </a>
+
+                                    </div>
+
+                                </div>
+
+                            </li>
+
+
+                            <!-- DEMO ORDERS -->
+
+                            <li class="nav-item"
+                                th:if="${former != null and former.demoEnabled}">
+
+                                <a class="nav-link"
+                                   th:href="@{/Former/DemoOrders}">
+
+                                    🧪 Demo Orders
+
+                                </a>
+
+                            </li>
+
+
+                            <!-- ALL ORDERS -->
+
+                            <li>
+
+                                <a class="see-all"
+                                   th:href="@{/Former/Orders}">
+
+                                    <strong>
+                                        See all Order
+                                    </strong>
+
+                                    <i class="la la-angle-right"></i>
+
+                                </a>
+
+                            </li>
+
+                        </ul>
+
+                    </li>
+
+
+                    <!-- =====================================================
+                         PROFILE
+                         ===================================================== -->
+
+                    <li class="nav-item dropdown">
+
+
+                        <a class="dropdown-toggle profile-pic"
+                           data-toggle="dropdown"
+                           href="#"
+                           aria-expanded="false">
+
+
+                            <!-- FIXED: NULL SAFE PROFILE IMAGE -->
+
+                            <img th:src="${session.loggedInFormer != null and session.loggedInFormer.profilepic != null}
+                                ? @{'/ProfilePic/' + session.loggedInFormer.profilepic}
+                                : @{../img/user_img.jpg}"
+                                 alt="user-img"
+                                 width="35"
+                                 class="img-circle">
+
+
+                            <!-- FIXED: NULL SAFE NAME -->
+
+                            <span th:text="${former != null ? former.name : 'Former'}">
+
+                                Former
+
+                            </span>
+
+                        </a>
+
+
+                        <ul class="dropdown-menu dropdown-user">
+
+
+                            <li>
+
+                                <div class="user-box">
+
+
+                                    <!-- PROFILE IMAGE -->
+
+                                    <div class="u-img">
+
+                                        <img alt="user"
+
+                                             th:src="${session.loggedInFormer != null and session.loggedInFormer.profilepic != null}
+                                                ? @{'/ProfilePic/' + session.loggedInFormer.profilepic}
+                                                : @{../img/user_img.jpg}" />
+
+                                    </div>
+
+
+                                    <!-- PROFILE INFORMATION -->
+
+                                    <div class="u-text">
+
+
+                                        <h4 th:text="${former != null ? former.name : 'Former'}">
+
+                                            Former
+
+                                        </h4>
+
+
+                                        <p class="text-muted"
+                                           th:text="${former != null ? former.email : ''}">
+
+                                            example@gmail.com
+
+                                        </p>
+
+
+                                        <a th:href="@{/Former/UserProfile}"
+                                           class="btn btn-rounded btn-danger btn-sm">
+
+                                            View Profile
+
+                                        </a>
+
+                                    </div>
+
+                                </div>
+
+                            </li>
+
+
+                            <div class="dropdown-divider"></div>
+
+
+                            <a class="dropdown-item"
+                               th:href="@{/Former/EditProfile}">
+
+                                <i class="ti-user"></i>
+
+                                Edit Profile
+
+                            </a>
+
+
+                            <div class="dropdown-divider"></div>
+
+
+                            <a class="dropdown-item"
+                               th:href="@{/Former/ChangePassword}">
+
+                                <i class="ti-settings"></i>
+
+                                Change Password
+
+                            </a>
+
+
+                            <div class="dropdown-divider"></div>
+
+
+                            <a class="dropdown-item"
+                               th:href="@{/Former/Logout}">
+
+                                <i class="fa fa-power-off"></i>
+
+                                Logout
+
+                            </a>
+
+
+                        </ul>
+
+                    </li>
+
+
+                </ul>
+
+            </div>
+
+        </nav>
+
+    </div>
+
+
+
+    <!-- =========================================================
+         SIDEBAR
+         ========================================================= -->
+
+    <div class="sidebar">
+
+        <div class="scrollbar-inner sidebar-wrapper">
+
+            <ul class="nav">
+
+
+                <!-- DASHBOARD -->
+
+                <li class="nav-item"
+                    th:classappend="${active1}">
+
+                    <a th:href="@{/Former/Dashboard}">
+
+                        <i class="la la-dashboard"></i>
+
+                        <p>
+                            Dashboard
+                        </p>
+
+                        <span class="badge badge-count"></span>
+
+                    </a>
+
+                </li>
+
+
+                <!-- ADD PRODUCTS -->
+
+                <li class="nav-item"
+                    th:classappend="${active2}">
+
+                    <a th:href="@{/Former/AddProduct}">
+
+                        <i class="la la-fonticons"></i>
+
+                        <p>
+                            Add Products
+                        </p>
+
+                    </a>
+
+                </li>
+
+
+                <!-- MANAGE PRODUCTS -->
+
+                <li class="nav-item"
+                    th:classappend="${active3}">
+
+                    <a th:href="@{/Former/ManageProduct}">
+
+                        <i class="la la-fonticons"></i>
+
+                        <p>
+                            Manage Products
+                        </p>
+
+                    </a>
+
+                </li>
+
+
+                <!-- AI DEMAND FORECAST -->
+
+                <li class="nav-item"
+                    th:classappend="${activeDemandForecast}">
+
+                    <a th:href="@{/DemandForecast/Former}">
+
+                        <i class="la la-line-chart"></i>
+
+                        <p>
+                            AI Demand Forecast
+                        </p>
+
+                    </a>
+
+                </li>
+
+
+                <!-- VIEW ORDERS -->
+
+                <li class="nav-item"
+                    th:classappend="${active4}">
+
+                    <a th:href="@{/Former/Orders}">
+
+                        <i class="la la-fonticons"></i>
+
+                        <p>
+                            View Orders
+                        </p>
+
+                    </a>
+
+                </li>
+
+
+                <!-- FPO CONTRIBUTIONS -->
+
+                <li class="nav-item"
+                    th:classappend="${active5}">
+
+                    <a th:href="@{/Former/FPOContributions}">
+
+                        <i class="la la-users"></i>
+
+                        <p>
+                            My FPO Contributions
+                        </p>
+
+                    </a>
+
+                </li>
+
+
+                <!-- PROFILE -->
+
+                <li class="nav-item"
+                    th:classappend="${active6}">
+
+                    <a th:href="@{/Former/UserProfile}">
+
+                        <i class="la la-bullhorn"></i>
+
+                        <p>
+                            View &amp; Update Profile
+                        </p>
+
+                    </a>
+
+                </li>
+
+
+                <li class="nav-item py-4">
+                    &nbsp;
+                </li>
+
+
+            </ul>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =========================================================
+         MAIN PANEL
+         ========================================================= -->
+
+    <div class="main-panel">
+
+
+        <div class="content">
+
+            <div th:replace="${content}"></div>
+
+        </div>
+
+
+
+        <!-- =====================================================
+             FOOTER
+             ===================================================== -->
+
+        <footer class="footer">
+
+            <div class="container-fluid">
+
+
+                <nav class="pull-left">
+
+                    <ul class="nav">
+
+
+                        <li class="nav-item">
+
+                            <a class="nav-link"
+                               href="#">
+
+                                Agritrade Hub
+
+                            </a>
+
+                        </li>
+
+
+                        <li class="nav-item">
+
+                            <a class="nav-link"
+                               href="#">
+
+                                Help
+
+                            </a>
+
+                        </li>
+
+
+                        <li class="nav-item">
+
+                            <a class="nav-link"
+                               href="#">
+
+                                Licenses
+
+                            </a>
+
+                        </li>
+
+
+                    </ul>
+
+                </nav>
+
+
+                <div class="copyright ml-auto">
+
+                    2018, made with
+
+                    <i class="la la-heart heart text-danger"></i>
+
+                    by
+
+                    <a href="#">
+
+                        Agritrade Hub
+
+                    </a>
+
+                </div>
+
+
+            </div>
+
+        </footer>
+
+
+    </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     JAVASCRIPT
+     ========================================================= -->
+
+<script th:src="@{/assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js}">
+</script>
+
+<script th:src="@{/assets/js/core/popper.min.js}">
+</script>
+
+<script th:src="@{/assets/js/core/bootstrap.min.js}">
+</script>
+
+<script th:src="@{/assets/js/plugin/chartist/chartist.min.js}">
+</script>
+
+<script th:src="@{/assets/js/plugin/chartist/plugin/chartist-plugin-tooltip.min.js}">
+</script>
+
+<script th:src="@{/assets/js/plugin/bootstrap-toggle/bootstrap-toggle.min.js}">
+</script>
+
+<script th:src="@{/assets/js/plugin/jquery-mapael/jquery.mapael.min.js}">
+</script>
+
+<script th:src="@{/assets/js/plugin/jquery-mapael/maps/world_countries.min.js}">
+</script>
+
+<script th:src="@{/assets/js/plugin/chart-circle/circles.min.js}">
+</script>
+
+<script th:src="@{/assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js}">
+</script>
+
+<script th:src="@{/assets/js/ready.min.js}">
+</script>
+
+
+<script type="text/javascript"
+        src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js">
+</script>
+
+<script type="text/javascript"
+        src="https://cdn.datatables.net/buttons/1.6.1/js/dataTables.buttons.min.js">
+</script>
+
+<script type="text/javascript"
+        src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.flash.min.js">
+</script>
+
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js">
+</script>
+
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js">
+</script>
+
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js">
+</script>
+
+<script type="text/javascript"
+        src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.html5.min.js">
+</script>
+
+<script type="text/javascript"
+        src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.print.min.js">
+</script>
+
+
+
+<!-- =========================================================
+     DATATABLE
+     ========================================================= -->
+
+<script>
+
+$(document).ready(function () {
+
+    if (!$.fn.DataTable.isDataTable('#example')) {
+
+        var pageLengths = [
+            10,
+            25,
+            50,
+            100,
+            -1
+        ];
+
+        var pageLabels = [
+            '10',
+            '25',
+            '50',
+            '100',
+            'All'
+        ];
+
+        var table = $('#example').DataTable({
+
+            dom: 'Bfrtip',
+
+            buttons: [
+                'copy',
+                'csv',
+                'excel',
+                'pageLength'
+            ],
+
+            lengthMenu: [
+                pageLengths,
+                pageLabels
+            ]
+
+        });
+
+
+        $('#statusFilter').on('change', function () {
+
+            table
+                .column(6)
+                .search(this.value)
+                .draw();
+
+        });
+
+    }
+
+});
+
+</script>
+
+
+
+<!-- =========================================================
+     TIME AGO
+     ========================================================= -->
+
+<script>
+
+function timeAgo(dateStr) {
+
+    const now = new Date();
+
+    const date = new Date(dateStr);
+
+    const seconds =
+        Math.floor(
+            (now - date) / 1000
+        );
+
+
+    if (seconds < 60) {
+
+        return 'just now';
+
+    }
+
+
+    const minutes =
+        Math.floor(
+            seconds / 60
+        );
+
+
+    if (minutes < 60) {
+
+        return minutes
+            + ' minute'
+            + (minutes > 1 ? 's' : '')
+            + ' ago';
+
+    }
+
+
+    const hours =
+        Math.floor(
+            minutes / 60
+        );
+
+
+    if (hours < 24) {
+
+        return hours
+            + ' hour'
+            + (hours > 1 ? 's' : '')
+            + ' ago';
+
+    }
+
+
+    const days =
+        Math.floor(
+            hours / 24
+        );
+
+
+    return days
+        + ' day'
+        + (days > 1 ? 's' : '')
+        + ' ago';
+
+}
+
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        document
+            .querySelectorAll('.time')
+            .forEach(function (el) {
+
+                const rawTime =
+                    el.getAttribute('data-time');
+
+                if (rawTime) {
+
+                    el.textContent =
+                        timeAgo(rawTime);
+
+                }
+
+            });
+
+    }
+);
+
+</script>
+
+
+</body>
+
+</html>

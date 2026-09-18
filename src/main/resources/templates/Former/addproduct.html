@@ -1,0 +1,556 @@
+<html th:replace="~{Former/formerbase::layout(~{::section})}">
+
+
+<head></head>
+
+<body>
+
+<section>
+
+    <div class="row">
+
+        <div class="container">
+
+            <div class="row justify-content-center">
+
+                <div class="col-md-8">
+
+                    <div class="card shadow-lg border-0 rounded-4">
+
+                        <!-- ================================================= -->
+                        <!-- HEADER -->
+                        <!-- ================================================= -->
+
+                        <div class="card-header bg-success text-white text-center rounded-top-4">
+
+                            <h4 class="mb-0">
+                                Add New Product
+                            </h4>
+
+                        </div>
+
+
+                        <div class="card-body p-4">
+
+                            <!-- ================================================= -->
+                            <!-- FORM -->
+                            <!-- ================================================= -->
+
+                            <form
+                                    th:action="@{/Former/AddProduct}"
+                                    th:object="${productDto}"
+                                    method="post"
+                                    enctype="multipart/form-data">
+
+
+                                <!-- ================================================= -->
+                                <!-- PRODUCT NAME -->
+                                <!-- ================================================= -->
+
+                                <div class="mb-3">
+
+                                    <label class="form-label">
+                                        Product Name
+                                    </label>
+
+                                    <input
+                                            type="text"
+                                            class="form-control"
+                                            th:field="*{productName}"
+                                            placeholder="Enter product name"
+                                            required>
+
+                                </div>
+
+
+                                <!-- ================================================= -->
+                                <!-- CATEGORY -->
+                                <!-- ================================================= -->
+
+                                <div class="mb-3">
+
+                                    <label class="form-label">
+                                        Category
+                                    </label>
+
+                                    <select
+                                            th:field="*{category}"
+                                            class="form-control"
+                                            required>
+
+                                        <option value="">
+                                            -- Select Category --
+                                        </option>
+
+                                        <option
+                                                th:each="cat : ${categories}"
+                                                th:value="${cat.category}"
+                                                th:text="${cat.category}">
+                                        </option>
+
+                                    </select>
+
+                                    <small
+                                            class="text-danger"
+                                            th:if="${categories == null or #lists.isEmpty(categories)}">
+
+                                        No categories are available.
+                                        Please contact the administrator.
+
+                                    </small>
+
+                                </div>
+
+
+                                <!-- ================================================= -->
+                                <!-- QUANTITY -->
+                                <!-- ================================================= -->
+
+                                <div class="mb-3">
+
+                                    <label class="form-label">
+                                        Quantity (in Kg/Units)
+                                    </label>
+
+                                    <input
+                                            type="number"
+                                            class="form-control"
+                                            th:field="*{quantity}"
+                                            placeholder="Enter quantity"
+                                            min="1"
+                                            required>
+
+                                </div>
+
+
+                                <!-- ================================================= -->
+                                <!-- MINIMUM ORDER QUANTITY -->
+                                <!-- ================================================= -->
+
+                                <div class="mb-3">
+
+                                    <label class="form-label">
+                                        Minimum Order Quantity
+                                    </label>
+
+                                    <input
+                                            type="number"
+                                            class="form-control"
+                                            th:field="*{minimumOrderQuantity}"
+                                            min="1"
+                                            value="1"
+                                            required>
+
+                                    <small class="text-muted">
+                                        Minimum quantity a merchant must purchase.
+                                    </small>
+
+                                </div>
+
+
+                                <!-- ================================================= -->
+                                <!-- MAXIMUM ORDER QUANTITY -->
+                                <!-- ================================================= -->
+
+                                <div class="mb-3">
+
+                                    <label class="form-label">
+                                        Maximum Order Quantity
+                                    </label>
+
+                                    <input
+                                            type="number"
+                                            class="form-control"
+                                            th:field="*{maxOrderQuantity}"
+                                            min="0"
+                                            placeholder="Leave blank for no separate maximum">
+
+                                    <small class="text-muted">
+                                        Leave blank or enter 0 to use available stock as the only limit.
+                                    </small>
+
+                                </div>
+
+
+                                <!-- ================================================= -->
+                                <!-- MAXIMUM FPO BULK QUANTITY -->
+                                <!-- ================================================= -->
+
+                                <div class="mb-3">
+
+                                    <label class="form-label">
+                                        Maximum FPO Bulk Quantity
+                                    </label>
+
+                                    <input
+                                            type="number"
+                                            class="form-control"
+                                            th:field="*{maxBulkQuantity}"
+                                            min="0"
+                                            placeholder="Leave blank for no separate maximum">
+
+                                    <small class="text-muted">
+                                        Leave blank or enter 0 for no separate FPO bulk limit.
+                                    </small>
+
+                                </div>
+
+
+                                <!-- ================================================= -->
+                                <!-- PRICE -->
+                                <!-- ================================================= -->
+
+                                <div class="mb-3">
+
+                                    <label class="form-label">
+                                        Price Per Unit (₹)
+                                    </label>
+
+                                    <input
+                                            type="number"
+                                            step="0.01"
+                                            class="form-control"
+                                            th:field="*{pricePerUnit}"
+                                            placeholder="Enter price per unit"
+                                            min="0"
+                                            required>
+
+                                </div>
+
+
+                                <!-- ================================================= -->
+                                <!-- FAIR PRICE -->
+                                <!-- ================================================= -->
+
+                                <div
+                                        id="fairPriceBox"
+                                        class="alert alert-secondary d-none">
+                                </div>
+
+
+                                <!-- ================================================= -->
+                                <!-- SELLING MODE -->
+                                <!-- ================================================= -->
+
+                                <div class="mb-3">
+
+                                    <label class="form-label">
+                                        Selling Mode
+                                    </label>
+
+                                    <select
+                                            id="sellingMode"
+                                            th:field="*{sellingMode}"
+                                            class="form-control"
+                                            required>
+
+                                        <option value="INDEPENDENT">
+                                            Independent Sale
+                                        </option>
+
+                                        <option value="FPO">
+                                            FPO Contribution
+                                        </option>
+
+                                    </select>
+
+                                    <small class="text-muted">
+
+                                        FPO Contribution hides this quantity
+                                        from the normal merchant Products list
+                                        and makes it available for your FPO
+                                        to aggregate into Bulk Products.
+
+                                    </small>
+
+                                </div>
+
+
+                                <!-- ================================================= -->
+                                <!-- FPO -->
+                                <!-- ================================================= -->
+
+                                <div
+                                        class="mb-3"
+                                        id="fpoBox"
+                                        style="display:none;">
+
+                                    <label class="form-label">
+                                        FPO
+                                    </label>
+
+                                    <select
+                                            id="fpoId"
+                                            th:field="*{fpoId}"
+                                            class="form-control">
+
+                                        <option value="">
+                                            -- Select FPO --
+                                        </option>
+
+                                        <option
+                                                th:each="fpo : ${memberFPOs}"
+                                                th:value="${fpo.id}"
+                                                th:text="${fpo.name + ' - ' + fpo.registrationNumber}">
+                                        </option>
+
+                                    </select>
+
+                                    <small
+                                            class="text-muted"
+                                            th:if="${memberFPOs == null or #lists.isEmpty(memberFPOs)}">
+
+                                        You are not currently a member of an FPO.
+
+                                    </small>
+
+                                </div>
+
+
+                                <!-- ================================================= -->
+                                <!-- PRODUCT IMAGE -->
+                                <!-- ================================================= -->
+
+                                <div class="mb-3">
+
+                                    <label class="form-label">
+                                        Product Image
+                                    </label>
+
+                                    <input
+                                            type="file"
+                                            class="form-control"
+                                            th:field="*{image}"
+                                            accept="image/*">
+
+                                </div>
+
+
+                                <!-- ================================================= -->
+                                <!-- SAVE -->
+                                <!-- ================================================= -->
+
+                                <div class="text-center mt-4">
+
+                                    <button
+                                            type="submit"
+                                            class="btn btn-success px-4">
+
+                                        Save Product
+
+                                    </button>
+
+                                </div>
+
+
+                            </form>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================================= -->
+    <!-- FPO SHOW / HIDE -->
+    <!-- ========================================================= -->
+
+    <script>
+
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const mode = document.getElementById('sellingMode');
+            const box = document.getElementById('fpoBox');
+            const fpo = document.getElementById('fpoId');
+
+            function toggleFpo() {
+
+                const isFpo = mode.value === 'FPO';
+
+                box.style.display = isFpo ? 'block' : 'none';
+
+                fpo.required = isFpo;
+
+                if (!isFpo) {
+                    fpo.value = '';
+                }
+            }
+
+            mode.addEventListener('change', toggleFpo);
+
+            toggleFpo();
+
+        });
+
+    </script>
+
+
+    <!-- ========================================================= -->
+    <!-- FAIR PRICE CHECK -->
+    <!-- ========================================================= -->
+
+    <script>
+
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const nameInput =
+                document.querySelector('[name="productName"]');
+
+            const categoryInput =
+                document.querySelector('[name="category"]');
+
+            const priceInput =
+                document.querySelector('[name="pricePerUnit"]');
+
+            const box =
+                document.getElementById('fairPriceBox');
+
+
+            function checkFairPrice() {
+
+                if (!nameInput ||
+                    !categoryInput ||
+                    !priceInput ||
+                    !nameInput.value ||
+                    !categoryInput.value ||
+                    !priceInput.value) {
+
+                    box.classList.add('d-none');
+                    return;
+                }
+
+
+                const url =
+                    '/Former/fair-price'
+                    + '?productName='
+                    + encodeURIComponent(nameInput.value)
+                    + '&category='
+                    + encodeURIComponent(categoryInput.value)
+                    + '&price='
+                    + encodeURIComponent(priceInput.value);
+
+
+                fetch(url)
+
+                    .then(response => {
+
+                        if (!response.ok) {
+                            throw new Error('Fair price request failed.');
+                        }
+
+                        return response.json();
+
+                    })
+
+                    .then(data => {
+
+                        box.classList.remove('d-none');
+
+
+                        if (data.status === 'FAIR') {
+
+                            box.className =
+                                'alert alert-success';
+
+                            box.textContent =
+                                '✅ Fair price. Reference ₹'
+                                + data.referencePrice
+                                + '; range ₹'
+                                + data.lowerFairPrice
+                                + '–₹'
+                                + data.upperFairPrice
+                                + '.';
+
+                        }
+
+                        else if (data.status === 'ABOVE_MARKET') {
+
+                            box.className =
+                                'alert alert-danger';
+
+                            box.textContent =
+                                '⚠️ Above fair range. Reference ₹'
+                                + data.referencePrice
+                                + '; upper limit ₹'
+                                + data.upperFairPrice
+                                + '.';
+
+                        }
+
+                        else if (data.status === 'BELOW_MARKET') {
+
+                            box.className =
+                                'alert alert-warning';
+
+                            box.textContent =
+                                'ℹ️ Below market reference. Reference ₹'
+                                + data.referencePrice
+                                + '; fair range ₹'
+                                + data.lowerFairPrice
+                                + '–₹'
+                                + data.upperFairPrice
+                                + '.';
+
+                        }
+
+                        else {
+
+                            box.className =
+                                'alert alert-secondary';
+
+                            box.textContent =
+                                data.message || 'Price information unavailable.';
+
+                        }
+
+                    })
+
+                    .catch(error => {
+
+                        console.error(error);
+
+                        box.classList.add('d-none');
+
+                    });
+
+            }
+
+
+            [
+                nameInput,
+                categoryInput,
+                priceInput
+            ].forEach(element => {
+
+                if (element) {
+
+                    element.addEventListener(
+                        'input',
+                        checkFairPrice
+                    );
+
+                    element.addEventListener(
+                        'change',
+                        checkFairPrice
+                    );
+
+                }
+
+            });
+
+        });
+
+    </script>
+
+</section>
+
+</body>
+
+</html>

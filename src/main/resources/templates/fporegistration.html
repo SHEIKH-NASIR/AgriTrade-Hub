@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base :: layout(~{::section})}">
+
+<head>
+    <title>FPO Registration - AgriTrade Hub</title>
+</head>
+
+<body>
+
+<section>
+
+    <div class="container py-5">
+
+        <div class="row justify-content-center">
+
+            <div class="col-lg-9">
+
+                <div class="card shadow-lg border-0 rounded-4">
+
+                    <div class="card-header bg-success text-white text-center rounded-top-4">
+
+                        <h3 class="mb-0">
+                            FPO Registration
+                        </h3>
+
+                        <p class="mb-0">
+                            Register your Farmer Producer Organisation
+                        </p>
+
+                    </div>
+
+                    <div class="card-body p-4">
+
+                        <div th:if="${successmsg}"
+                             class="alert alert-success"
+                             th:text="${successmsg}">
+                        </div>
+
+                        <div th:if="${errormsg}"
+                             class="alert alert-danger"
+                             th:text="${errormsg}">
+                        </div>
+
+                        <form th:action="@{/fporegistration}"
+                              th:object="${dto}"
+                              method="post">
+
+                            <div class="row">
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label fw-semibold">
+                                        FPO Name
+                                    </label>
+
+                                    <input type="text"
+                                           class="form-control"
+                                           th:field="*{name}"
+                                           placeholder="Enter FPO name"
+                                           required>
+
+                                </div>
+
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label fw-semibold">
+                                        Registration Number
+                                    </label>
+
+                                    <input type="text"
+                                           class="form-control"
+                                           th:field="*{registrationNumber}"
+                                           placeholder="Enter registration number"
+                                           required>
+
+                                </div>
+
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label fw-semibold">
+                                        Contact Person
+                                    </label>
+
+                                    <input type="text"
+                                           class="form-control"
+                                           th:field="*{contactPerson}"
+                                           placeholder="Enter contact person's name"
+                                           required>
+
+                                </div>
+
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label fw-semibold">
+                                        Phone
+                                    </label>
+
+                                    <input type="tel"
+                                           class="form-control"
+                                           th:field="*{phone}"
+                                           placeholder="Enter phone number"
+                                           required>
+
+                                </div>
+
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label fw-semibold">
+                                        Email
+                                    </label>
+
+                                    <input type="email"
+                                           class="form-control"
+                                           th:field="*{email}"
+                                           placeholder="Enter email"
+                                           required>
+
+                                </div>
+
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label fw-semibold">
+                                        Password
+                                    </label>
+
+                                    <input type="password"
+                                           class="form-control"
+                                           th:field="*{password}"
+                                           placeholder="Create password"
+                                           required>
+
+                                </div>
+
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label fw-semibold">
+                                        State
+                                    </label>
+
+                                    <input type="text"
+                                           class="form-control"
+                                           th:field="*{state}"
+                                           placeholder="Enter state">
+
+                                </div>
+
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label class="form-label fw-semibold">
+                                        District
+                                    </label>
+
+                                    <input type="text"
+                                           class="form-control"
+                                           th:field="*{district}"
+                                           placeholder="Enter district">
+
+                                </div>
+
+
+                                <div class="col-12 mb-3">
+
+                                    <label class="form-label fw-semibold">
+                                        Address
+                                    </label>
+
+                                    <textarea class="form-control"
+                                              th:field="*{address}"
+                                              rows="3"
+                                              placeholder="Enter FPO address"
+                                              required></textarea>
+
+                                </div>
+
+
+                                <div class="col-12 mb-3">
+
+                                    <label class="form-label fw-semibold">
+                                        Description
+                                    </label>
+
+                                    <textarea class="form-control"
+                                              th:field="*{description}"
+                                              rows="4"
+                                              placeholder="Tell us about your FPO"></textarea>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="text-center mt-3">
+
+                                <button type="submit"
+                                        class="btn btn-success px-5">
+                                    Register FPO
+                                </button>
+
+                                <a href="/FPO/Login"
+                                   class="btn btn-outline-primary px-5 ms-2">
+                                    FPO Login
+                                </a>
+
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+</body>
+</html>

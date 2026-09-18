@@ -1,0 +1,307 @@
+<html th:replace="~{base::layout(~{::main})}">
+<head></head>
+<body>
+	<main class="main">
+
+		<!-- Page Title -->
+		<div class="page-title dark-background pt-5 mt-5" data-aos="fade" style="background-image: url(img/page-title-bg.webp);">
+			<div class="container position-relative mt-5">
+				 <h1>Merchant Registration Form</h1>
+				<!--<p>Home / Contact</p> -->
+				<nav class="breadcrumbs">
+					<ol>
+						<li><a href="/" class="fw-bold">Home</a></li>
+						<li class="current">Registration</li>
+					</ol>
+				</nav>
+			</div>
+		</div>
+		<!-- End Page Title -->
+
+		<!-- Registration Form -->
+		<section id="contact" class="contact section pt-5">
+			<div class="row">
+				<div class="col-lg-7 info mx-auto h-100">
+
+						<!-- Voice Language Switcher -->
+						<div class="voice-lang-bar d-flex align-items-center justify-content-between mb-3">
+							<div class="d-flex align-items-center gap-2">
+								<span style="font-size:20px;">🎙️</span>
+								<label for="voiceLangSelect" class="mb-0 fw-bold">Voice Input Language:</label>
+							</div>
+							<select id="voiceLangSelect" class="form-select form-select-sm" style="max-width:220px;">
+								<option value="en-IN">English</option>
+								<option value="hi-IN" selected>हिन्दी (Hindi)</option>
+								<option value="mr-IN">मराठी (Marathi)</option>
+								<option value="bn-IN">বাংলা (Bengali)</option>
+								<option value="gu-IN">ગુજરાતી (Gujarati)</option>
+								<option value="ta-IN">தமிழ் (Tamil)</option>
+								<option value="te-IN">తెలుగు (Telugu)</option>
+								<option value="pa-IN">ਪੰਜਾਬੀ (Punjabi)</option>
+							</select>
+						</div>
+
+						<form method="post" th:action="@{/mregistration}" th:object="${dto}" class="registration-form">
+							<div class="my-3">
+								<div class="loading"></div>
+								<div class="error-msg text-center" th:if="${errormsg}" th:text="${errormsg}">Hello</div>
+								<div class="sent-msg" th:if="${successmsg}" th:text="${successmsg}">Hii</div>
+							</div>
+
+
+							<div class="row">
+								<div class="col-md-6 form-group mt-3">
+									<label class="pb-1">Enter Your Name</label>
+									<div class="input-group">
+										<input type="text" th:field="${dto.name}" class="form-control" id="name" placeholder="Your Name" required>
+										<button type="button" id="mic_name" class="mic-btn" onclick="fillVoice('name')">🎤</button>
+									</div>
+								</div>
+								<div class="col-md-6 form-group mt-3">
+									<label class="pb-1">Enter Your Email</label>
+									<div class="input-group">
+										<input type="email" th:field="${dto.email}" class="form-control" id="email" placeholder="Your Userid(email)" required>
+										<button type="button" id="mic_email" class="mic-btn" onclick="fillVoice('email', {email: true})">🎤</button>
+									</div>
+								</div>
+								<div class="col-md-6 form-group mt-3">
+									<label class="pb-1">Enter Your Password</label>
+									<input type="password" th:field="${dto.password}" maxlength="8" minlength="3" class="form-control" id="password" placeholder="Your Password" required>
+								</div>
+
+								<div class="col-md-6 form-group mt-3">
+									<label class="pb-1">Enter Your ContactNo</label>
+									<div class="input-group">
+										<input type="text" pattern="[6-9]\d{9}" minlength="10" maxlength="10" th:field="*{contactno}" class="form-control rounded-0" id="contactno" placeholder="Your Contact No." required>
+										<button type="button" id="mic_contactno" class="mic-btn" onclick="fillVoice('contactno', {numbersOnly: true})">🎤</button>
+									</div>
+								</div>
+
+								<div class="col-md-6 form-group mt-3">
+									<label class="pb-1">Enter Your Aadhar No</label>
+									<div class="input-group">
+										<input type="text" pattern="\d{12}" minlength="12" maxlength="12" th:field="${dto.aadharno}" class="form-control rounded-0" id="aadharno" placeholder="Your Aadhar No." required>
+										<button type="button" id="mic_aadharno" class="mic-btn" onclick="fillVoice('aadharno', {numbersOnly: true})">🎤</button>
+									</div>
+								</div>
+
+								<div class="col-md-6 form-group mt-3">
+									<label class="pb-1">Enter Your Pan Card No</label>
+									<div class="input-group">
+										<input type="text" pattern="[A-Z]{5}[0-9]{4}[A-Z]" maxlength="10" minlength="10" th:field="${dto.pancardno}" style="text-transform: uppercase;" class="form-control rounded-0" id="pancardno" placeholder="Your Pancard No." required>
+										<button type="button" id="mic_pancardno" class="mic-btn" onclick="fillVoice('pancardno', {uppercaseNoSpace: true})">🎤</button>
+									</div>
+								</div>
+
+								<div class="col-md-12 form-group mt-3">
+									<label class="pb-1">Enter Your Permanent Address</label>
+									<div class="input-group">
+										<input type="text" th:field="${dto.address}" class="form-control" id="address" placeholder="Your Address" required>
+										<button type="button" id="mic_address" class="mic-btn" onclick="fillVoice('address')">🎤</button>
+									</div>
+								</div>
+
+								<div class="col-md-12">
+                                	 <!-- CAPTCHA -->
+          							<div style="margin: 15px 0;">
+  										<label for="captcha_input_owner" style="font-weight: 500;">Enter the CAPTCHA below:</label>
+  											<div class="row">
+  												<div class="col-md-4 d-flex " >
+  													<!-- CAPTCHA Display -->
+    												<input type="text" id="captcha_display_owner" readonly>
+
+    												<!-- Refresh Button -->
+    												<button type="button" class="btn btn-success d-flex refresh-btn mx-2 h-75 mt-2" onclick="generateCaptcha('owner')">
+      													<span>↻</span>
+    												</button>
+  												</div>
+
+  												<div class="col-md-8">
+  													<p id="captchaMsg" class="py-2 px-3 m-0 bg-warning text-dark w-75" style="display: none; margin-top: 8px;">
+        												<!-- Message appears here -->
+      												</p>
+  												</div>
+
+  											</div>
+
+  											<!-- User Input -->
+  											<input class="form-control mt-2" type="text" id="captcha_input_owner" placeholder="Enter CAPTCHA" required >
+									</div>
+								</div>
+
+							</div>
+
+							<div class="text-center pt-4">
+								<button type="submit">Register</button>
+							</div>
+						</form>
+					</div>
+					<!-- End Contact Form -->
+			</div>
+
+		</section>
+		<!-- /Registration Section -->
+
+			<style>
+			#captcha_display_owner{
+  	font-weight: bold;
+  	border: none;
+  	background-color: #eee;
+    padding: 10px;
+    letter-spacing: 3px;
+    width: 140px;
+    font-size:22px;
+    text-align: center;
+    font-family: 'Courier New', monospace;
+    color: #333;
+    background-image: repeating-linear-gradient(45deg, transparent, transparent 2px, #ccc 2px, #ccc 3px);
+    text-shadow: 1px 1px #aaa, -1px -1px #ddd;
+    filter: blur(0.5px);
+    border:0;
+    outline:0;
+  }
+
+  .voice-lang-bar{
+  	background:#f8f9fa;
+  	border:1px solid #e2e2e2;
+  	border-radius:8px;
+  	padding:10px 14px;
+  }
+
+  .mic-btn {
+    border: none;
+    background: #f1f1f1;
+    border-radius: 6px;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-size: 16px;
+  }
+  .mic-btn.listening {
+    background: #dc3545;
+    color: white;
+    animation: pulse 1s infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(220,53,69,0.5); }
+    70% { box-shadow: 0 0 0 8px rgba(220,53,69,0); }
+    100% { box-shadow: 0 0 0 0 rgba(220,53,69,0); }
+  }
+		</style>
+		<script type="text/javascript">
+  let captcha = '';
+
+  function generateCaptcha(role) {
+    captcha = ''; // Reset captcha each time
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    for (let i = 0; i < 6; i++) {
+      captcha += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    document.getElementById(`captcha_display_${role}`).value = captcha;
+  }
+
+  function validateCaptcha() {
+    const userInput = document.getElementById("captcha_input_owner").value;
+    if (userInput !== captcha) {
+      document.getElementById("captchaMsg").style.display = 'block';
+      document.getElementById("captchaMsg").innerHTML = "Invalid Captcha. Please Try Again";
+      generateCaptcha("owner");
+      return false;
+    }
+    document.getElementById("captchaMsg").style.display = 'none';
+    return true;
+  }
+
+  // Ensure it runs AFTER DOM is loaded
+  window.onload = function () {
+    generateCaptcha("owner");
+    document.getElementById("captchaMsg").style.display = 'none';
+  };
+</script>
+
+		<!-- Voice Fill Script -->
+		<script type="text/javascript">
+function fillVoice(fieldId, options = {}) {
+  const targetInput = document.getElementById(fieldId);
+  const micBtn = document.getElementById('mic_' + fieldId);
+  const langSelect = document.getElementById('voiceLangSelect');
+  const selectedLang = langSelect ? langSelect.value : 'en-IN';
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    alert('Voice input is not supported in this browser. Please use Chrome or Edge.');
+    return;
+  }
+
+  const recognition = new SpeechRecognition();
+  recognition.lang = selectedLang;
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  if (micBtn) micBtn.classList.add('listening');
+
+  recognition.start();
+
+  recognition.onresult = function (event) {
+    let transcript = event.results[0][0].transcript.trim();
+
+    if (options.numbersOnly) {
+      transcript = wordsToDigits(transcript, selectedLang);
+    }
+    if (options.uppercaseNoSpace) {
+      transcript = transcript.toUpperCase().replace(/\s+/g, '');
+    }
+    if (options.email) {
+      // Email is always captured in English/Latin script regardless of selected language
+      transcript = transcript.toLowerCase()
+        .replace(/\s*at\s*/g, '@')
+        .replace(/\s*dot\s*/g, '.')
+        .replace(/\s+/g, '');
+    }
+
+    targetInput.value = transcript;
+    targetInput.dispatchEvent(new Event('input'));
+  };
+
+  recognition.onerror = function (event) {
+    console.error('Speech recognition error:', event.error);
+    if (micBtn) micBtn.classList.remove('listening');
+    if (event.error === 'no-speech') {
+      alert('No speech detected. Please try again and speak clearly.');
+    } else if (event.error === 'language-not-supported') {
+      alert('Selected language is not supported by your browser for speech input.');
+    }
+  };
+
+  recognition.onend = function () {
+    if (micBtn) micBtn.classList.remove('listening');
+  };
+}
+
+// Converts spoken number words to digits for several Indian languages.
+// Falls back to stripping non-digit characters for anything not mapped.
+function wordsToDigits(text, lang) {
+  const digitMaps = {
+    'en-IN': { zero:'0', one:'1', two:'2', three:'3', four:'4', five:'5', six:'6', seven:'7', eight:'8', nine:'9' },
+    'hi-IN': { 'शून्य':'0', 'एक':'1', 'दो':'2', 'तीन':'3', 'चार':'4', 'पांच':'5', 'पाँच':'5', 'छह':'6', 'सात':'7', 'आठ':'8', 'नौ':'9' },
+    'mr-IN': { 'शून्य':'0', 'एक':'1', 'दोन':'2', 'तीन':'3', 'चार':'4', 'पाच':'5', 'सहा':'6', 'सात':'7', 'आठ':'8', 'नऊ':'9' }
+  };
+
+  const map = digitMaps[lang] || digitMaps['en-IN'];
+
+  const words = text.trim().split(/\s+/);
+  const digitsOnly = words
+    .map(w => (map[w] !== undefined ? map[w] : w.replace(/\D/g, '')))
+    .join('');
+
+  if (!digitsOnly) {
+    return text.replace(/\D/g, '');
+  }
+  return digitsOnly;
+}
+</script>
+
+	</main>
+
+</body>
+</html>

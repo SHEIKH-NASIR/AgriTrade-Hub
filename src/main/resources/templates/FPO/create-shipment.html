@@ -1,0 +1,225 @@
+<html th:replace="~{FPO/fpobase::layout(~{::section})}">
+
+<section>
+
+    <div class="container-fluid">
+
+        <div th:if="${error}"
+             class="alert alert-danger"
+             th:text="${error}">
+        </div>
+
+        <div class="card shadow-sm">
+
+            <div class="card-header">
+                <h4 class="mb-0">
+                    🚚 Create Shipment for Order #
+                    <span th:text="${order.orderId}">1</span>
+                </h4>
+            </div>
+
+            <div class="card-body">
+
+                <div class="alert alert-info">
+
+                    <div class="mb-2">
+                        <strong>Product:</strong>
+                        <span th:text="${order.productName}">
+                            Rice
+                        </span>
+                    </div>
+
+                    <div class="mb-2">
+                        <strong>Quantity:</strong>
+                        <span th:text="${order.quantity}">
+                            100
+                        </span>
+                        kg
+                    </div>
+
+                    <div class="mb-2">
+                        <strong>Merchant:</strong>
+                        <span th:text="${merchantName}">
+                            Merchant
+                        </span>
+                    </div>
+
+                    <div>
+                        <strong>Merchant Registered Address:</strong>
+
+                        <span th:if="${merchantAddress != null and !merchantAddress.isBlank()}"
+                              th:text="${merchantAddress}">
+                            Merchant Address
+                        </span>
+
+                        <span th:unless="${merchantAddress != null and !merchantAddress.isBlank()}"
+                              class="text-danger">
+                            Merchant address is not available.
+                        </span>
+                    </div>
+
+                </div>
+
+                <form th:action="@{/FPO/Shipments/Create}"
+                      method="post"
+                      id="shipmentForm">
+
+                    <input type="hidden"
+                           name="orderId"
+                           th:value="${order.orderId}">
+
+                    <div class="mb-3">
+
+                        <label class="form-label fw-bold">
+                            Pickup / Collection Address
+                        </label>
+
+                        <textarea
+                                class="form-control"
+                                name="pickupAddress"
+                                rows="3"
+                                required
+                                placeholder="FPO warehouse / collection centre address"></textarea>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label fw-bold">
+                            Destination Address
+                        </label>
+
+                        <textarea
+                                class="form-control"
+                                id="destinationAddress"
+                                name="destinationAddress"
+                                rows="3"
+                                th:text="${merchantAddress}"
+                                required></textarea>
+
+                        <div class="form-check mt-2">
+
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   id="useMerchantAddress"
+                                   checked>
+
+                            <label class="form-check-label"
+                                   for="useMerchantAddress">
+                                Use merchant's registered address
+                            </label>
+
+                        </div>
+
+                        <small class="text-muted d-block mt-1">
+                            By default this is the merchant's registered address.
+                            Uncheck the option to enter a different delivery
+                            destination for this shipment only.
+                        </small>
+
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label fw-bold">
+                                Transporter Name
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   name="transporterName"
+                                   placeholder="Optional">
+
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label fw-bold">
+                                Vehicle Number
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   name="vehicleNumber"
+                                   placeholder="Optional">
+
+                        </div>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label fw-bold">
+                            Estimated Delivery Date & Time
+                        </label>
+
+                        <input type="datetime-local"
+                               class="form-control"
+                               name="estimatedDeliveryDate">
+
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+
+                        <a th:href="@{/FPO/Orders}"
+                           class="btn btn-secondary">
+                            Back
+                        </a>
+
+                        <button type="submit"
+                                class="btn btn-success">
+                            🚚 Create Shipment
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const checkbox =
+                document.getElementById("useMerchantAddress");
+
+            const destination =
+                document.getElementById("destinationAddress");
+
+            const merchantAddress =
+                destination.value;
+
+            function updateDestinationMode() {
+
+                if (checkbox.checked) {
+
+                    destination.value =
+                        merchantAddress;
+
+                    destination.readOnly = true;
+
+                } else {
+
+                    destination.readOnly = false;
+
+                }
+            }
+
+            checkbox.addEventListener(
+                "change",
+                updateDestinationMode
+            );
+
+            updateDestinationMode();
+        });
+    </script>
+
+</section>
+
+</html>

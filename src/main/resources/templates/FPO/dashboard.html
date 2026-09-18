@@ -1,0 +1,170 @@
+<html th:replace="~{FPO/fpobase::layout(~{::section})}">
+<head></head>
+
+<body>
+<section>
+
+    <div class="row">
+        <div class="col-12">
+            <h3>
+                Welcome,
+                <span th:text="${fpo.name}">FPO</span>
+            </h3>
+
+            <p class="text-muted">
+                FPO Management Dashboard
+            </p>
+        </div>
+    </div>
+
+
+    <div class="row">
+
+        <div class="col-md-3 mb-3">
+            <div class="card">
+                <div class="card-body text-center">
+
+                    <h5>Member Farmers</h5>
+
+                    <h2 class="text-success"
+                        th:text="${memberCount}">
+                        0
+                    </h2>
+
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-md-3 mb-3">
+            <div class="card">
+                <div class="card-body text-center">
+
+                    <h5>Products in Platform</h5>
+
+                    <h2 class="text-primary"
+                        th:text="${totalProducts}">
+                        0
+                    </h2>
+
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-md-3 mb-3">
+            <div class="card">
+                <div class="card-body text-center">
+
+                    <h5>Total Orders</h5>
+
+                    <h2 class="text-warning"
+                        th:text="${totalOrders}">
+                        0
+                    </h2>
+
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-md-3 mb-3">
+            <div class="card">
+                <div class="card-body text-center">
+
+                    <h5>FPO Status</h5>
+
+                    <h2 class="text-info"
+                        th:text="${fpo.status}">
+                        Pending
+                    </h2>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <div class="card mt-4 border-warning">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-9">
+                    <h4>🔔 Bulk Order Notifications</h4>
+                    <p class="mb-0">You have <strong th:text="${pendingOrderCount}">0</strong> paid bulk order(s) waiting for confirmation.</p>
+                </div>
+                <div class="col-md-3 text-md-end mt-3 mt-md-0">
+                    <a th:href="@{/FPO/Orders}" class="btn btn-warning">Review Orders</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FPO DETAILS -->
+
+    <div class="card mt-4">
+        <div class="card-body">
+
+            <h4>FPO Details</h4>
+
+            <p>
+                <strong>Registration No:</strong>
+                <span th:text="${fpo.registrationNumber}"></span>
+            </p>
+
+            <p>
+                <strong>Contact Person:</strong>
+                <span th:text="${fpo.contactPerson}"></span>
+            </p>
+
+            <p>
+                <strong>Location:</strong>
+                <span th:text="${fpo.district}"></span>,
+                <span th:text="${fpo.state}"></span>
+            </p>
+
+            <p>
+                <strong>Members:</strong>
+                <span th:text="${memberCount}"></span>
+                verified farmer(s)
+            </p>
+
+        </div>
+    </div>
+
+
+    <!-- NEW: BULK PRODUCT MANAGEMENT -->
+
+    <div class="card mt-4">
+        <div class="card-body">
+
+            <div class="row align-items-center">
+
+                <div class="col-md-8">
+
+                    <h4>📦 Bulk Product Management</h4>
+
+                    <p class="text-muted mb-0">
+                        Combine farmer produce and offer it as
+                        bulk supply to buyers.
+                    </p>
+
+                </div>
+
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+
+                    <a th:href="@{/FPO/Products}"
+                       class="btn btn-success">
+                        Manage Bulk Products
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</section>
+</body>
+</html>

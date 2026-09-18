@@ -1,0 +1,56 @@
+<html th:replace="~{FPO/fpobase::layout(~{::section})}">
+<section>
+<div class="container-fluid">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">📦 <span th:text="${demoMode} ? 'Demo Bulk Orders' : 'Bulk Orders'">Bulk Orders</span></h4>
+            <span class="badge bg-warning" th:text="${pendingOrderCount} + ' pending'">0 pending</span>
+        </div>
+        <div class="card-body"><div th:if="${demoMode}" class="alert alert-info">🧪 Demo orders only — process them normally to test confirmation, shipment and route optimization. <a class="btn btn-sm btn-outline-primary ms-2" th:href="@{/FPO/Shipments(demo=true)}">View Demo Shipments & Route</a></div>
+            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+            <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover text-center align-middle">
+                    <thead class="table-success">
+                    <tr><th>Order ID</th><th>Merchant</th><th>Product</th><th>Qty</th><th>Price/Unit</th><th>Total</th><th>Status</th><th>Order Date</th><th>Farmer Supply</th><th>Action</th></tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="order : ${orders}">
+                        <td th:text="${order.orderId}"></td>
+                        <td th:text="${order.merchant.name}"></td>
+                        <td th:text="${order.productName}"></td>
+                        <td th:text="${order.quantity}"></td>
+                        <td th:text="'₹ ' + ${order.pricePerUnit}"></td>
+                        <td th:text="'₹ ' + ${order.quantity * order.pricePerUnit}"></td>
+                        <td>
+                            <span class="badge" th:classappend="${order.orderStatus == 'Pending'} ? 'bg-warning' : (${order.orderStatus == 'Confirmed'} ? 'bg-primary' : (${order.orderStatus == 'Delivered'} ? 'bg-success' : 'bg-danger'))" th:text="${order.orderStatus}"></span>
+                        </td>
+                        <td th:text="${#temporals.format(order.orderDate, 'dd-MM-yyyy HH:mm')}"></td>
+                        <td class="text-start">
+                            <div th:if="${!#lists.isEmpty(orderContributions[order.orderId])}">
+                                <div th:each="allocation : ${orderContributions[order.orderId]}" class="small border-bottom py-1">
+                                    <strong th:text="${allocation.farmer.name}">Farmer</strong>:
+                                    <span th:text="${allocation.quantity}">0</span> qty ·
+                                    <span th:text="'₹ ' + ${allocation.amount}">₹ 0</span>
+                                </div>
+                            </div>
+                            <span th:if="${#lists.isEmpty(orderContributions[order.orderId])}" class="text-muted small">Legacy/unallocated bulk stock</span>
+                        </td>
+                        <td>
+                            <form th:if="${order.orderStatus == 'Pending'}" th:action="@{/FPO/Orders/Update}" method="post" class="d-flex gap-1 justify-content-center">
+                                <input type="hidden" name="orderId" th:value="${order.orderId}">
+                                <button class="btn btn-sm btn-success" name="newStatus" value="Confirmed">Confirm</button>
+                                <button class="btn btn-sm btn-danger" name="newStatus" value="Cancelled" onclick="return confirm('Cancel this paid order and initiate refund?')">Cancel</button>
+                            </form>
+                            <a th:if="${order.orderStatus == 'Confirmed'}" th:href="@{/FPO/Shipments/Create(orderId=${order.orderId})}" class="btn btn-sm btn-primary">🚚 Create Shipment</a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(orders)}"><td colspan="10" class="text-muted">No bulk orders yet.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</section>
+</html>

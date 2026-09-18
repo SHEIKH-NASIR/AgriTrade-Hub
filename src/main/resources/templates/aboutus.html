@@ -1,0 +1,219 @@
+<html th:replace="~{base::layout(~{::main})}">
+
+<head></head>
+
+<body>
+
+<main class="main">
+
+<style>
+
+    .section-title {
+        font-weight: 700;
+        color: #198754;
+    }
+
+    .mission-box {
+        background-color: #f3f8f4;
+        border-left: 5px solid #198754;
+        padding: 20px;
+        border-radius: 10px;
+        height: 100%;
+    }
+
+</style>
+
+
+<!-- ================= PAGE TITLE ================= -->
+
+<div class="page-title dark-background pt-5 mt-5"
+     data-aos="fade"
+     style="background-image: url('/img/page-title-bg.webp');">
+
+    <div class="container position-relative mt-5">
+
+        <h1 th:text="#{about.pagetitle}">
+            About AgriTrade Hub
+        </h1>
+
+        <nav class="breadcrumbs">
+
+            <ol>
+
+                <li>
+                    <a href="/"
+                       class="fw-bold"
+                       th:text="#{nav.home}">
+                        Home
+                    </a>
+                </li>
+
+                <li class="current"
+                    th:text="#{about.breadcrumb}">
+                    About us
+                </li>
+
+            </ol>
+
+        </nav>
+
+    </div>
+
+</div>
+
+
+<!-- ================= ABOUT CONTENT ================= -->
+
+<section>
+
+    <div class="container mt-2 mb-5">
+
+        <div class="row">
+
+            <!-- Text -->
+            <div class="col-md-7 px-4">
+
+                <h2 class="section-title"
+                    th:text="#{about.whoweare}">
+                    Who We Are
+                </h2>
+
+
+                <p th:text="#{about.para1}">
+                    AgriTrade Hub is a digital agricultural marketplace designed
+                    to directly connect farmers and Farmer Producer Organisations
+                    (FPOs) with consumers and bulk buyers. Our platform aims to
+                    reduce unnecessary intermediaries, improve farmer earnings,
+                    and provide consumers with transparent and competitive prices.
+                </p>
+
+
+                <p th:text="#{about.para2}">
+                    The platform combines digital marketplace services with
+                    logistics support, allowing buyers to understand the complete
+                    landed cost of agricultural products instead of comparing
+                    product prices alone.
+                </p>
+
+
+                <p th:text="#{about.para3}">
+                    AgriTrade Hub also uses technology-driven Fair Price validation,
+                    AI-based demand forecasting, and route/logistics optimization
+                    to create a more transparent and efficient agricultural
+                    supply chain.
+                </p>
+
+            </div>
+
+
+            <!-- Image -->
+            <div class="col-md-5 text-center">
+
+                <img src="/img/former-2.webp"
+                     th:alt="#{about.imagealt}"
+                     alt="Farmer and Merchant"
+                     class="img-fluid rounded">
+
+            </div>
+
+        </div>
+
+
+        <!-- ================= MISSION / OFFER ================= -->
+
+        <div class="row mt-5">
+
+
+            <!-- Mission -->
+            <div class="col-md-6 mb-4">
+
+                <div class="mission-box">
+
+                    <h4>
+
+                        🌱
+
+                        <span th:text="#{about.mission}">
+                            Our Mission
+                        </span>
+
+                    </h4>
+
+
+                    <p th:text="#{about.missiontext}">
+                        To reduce intermediaries in agricultural trade by
+                        connecting farmers and FPOs directly with consumers
+                        and bulk buyers, helping farmers receive fair prices
+                        while enabling buyers to access quality products at
+                        transparent and competitive landed costs.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- What We Offer -->
+            <div class="col-md-6 mb-4">
+
+                <div class="mission-box">
+
+                    <h4>
+
+                        🚜
+
+                        <span th:text="#{about.whatweoffer}">
+                            What We Offer
+                        </span>
+
+                    </h4>
+
+
+                    <ul>
+
+                        <li th:text="#{about.offer1}">
+                            Direct Farmer, FPO and Consumer/Buyer Marketplace
+                        </li>
+
+                        <li th:text="#{about.offer2}">
+                            Live Agricultural Product Listings and Category Filtering
+                        </li>
+
+                        <li th:text="#{about.offer3}">
+                            Fair Price Guard with Market Price Validation
+                        </li>
+
+                        <li th:text="#{about.offer4}">
+                            AI-Based Demand Forecasting and Procurement Insights
+                        </li>
+
+                        <li th:text="#{about.offer5}">
+                            ORS-Based Logistics, Route Optimization and Landed Cost Calculation
+                        </li>
+
+                        <li th:text="#{about.offer6}">
+                            Price + Logistics Comparison for Independent Farmers and FPOs
+                        </li>
+
+                        <li th:text="#{about.offer7}">
+                            Online Orders, Razorpay Payments and Order Tracking
+                        </li>
+
+                    </ul>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+</main>
+
+</body>
+
+</html>

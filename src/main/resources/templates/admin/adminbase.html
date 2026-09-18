@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org"
+      th:fragment="layout(content)">
+
+<head>
+
+    <meta http-equiv="X-UA-Compatible"
+          content="IE=edge,chrome=1" />
+
+    <title>Admin Zone - Agritrade Hub</title>
+
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0,
+    user-scalable=0, shrink-to-fit=no"
+          name="viewport" />
+
+    <link rel="stylesheet"
+          th:href="@{/assets/css/bootstrap.min.css}">
+
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i">
+
+    <link rel="stylesheet"
+          type="text/css"
+          href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
+
+    <link rel="stylesheet"
+          type="text/css"
+          href="https://cdn.datatables.net/buttons/1.6.1/css/buttons.dataTables.min.css">
+
+    <link rel="stylesheet"
+          href="https://cdn.datatables.net/2.1.3/css/dataTables.bootstrap5.css" />
+
+    <link rel="stylesheet"
+          th:href="@{/assets/css/ready.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/assets/css/demo.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/table.css}">
+
+    <style type="text/css">
+
+        td,
+        th {
+            white-space: nowrap !important;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="wrapper">
+
+
+    <!-- ========================================================= -->
+    <!-- HEADER -->
+    <!-- ========================================================= -->
+
+    <div class="main-header">
+
+        <div class="logo-header text-center">
+
+            <a th:href="@{/admin/dashboard}"
+               class="logo">
+                Agritrade Hub
+            </a>
+
+
+            <button class="navbar-toggler sidenav-toggler ml-auto"
+                    type="button"
+                    data-toggle="collapse"
+                    data-target="collapse"
+                    aria-controls="sidebar"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation">
+
+                <span class="navbar-toggler-icon"></span>
+
+            </button>
+
+
+            <button class="topbar-toggler more">
+
+                <i class="la la-ellipsis-v"></i>
+
+            </button>
+
+        </div>
+
+
+        <nav class="navbar navbar-header navbar-expand-lg">
+
+            <div class="container-fluid">
+
+
+                <ul class="navbar-nav topbar-nav ml-md-auto align-items-center">
+
+
+                    <li class="nav-item dropdown">
+
+
+                        <a class="dropdown-toggle profile-pic"
+                           data-toggle="dropdown"
+                           href="#"
+                           aria-expanded="false">
+
+
+                            <img th:if="${admininfo != null and admininfo.profilepic != null}"
+                                 th:src="@{'/ProfilePic/' + ${admininfo.profilepic}}"
+                                 alt="user-img"
+                                 width="36"
+                                 class="img-circle">
+
+
+                            <img th:if="${admininfo == null or admininfo.profilepic == null}"
+                                 th:src="@{/img/user_img.jpg}"
+                                 alt="user-img"
+                                 width="36"
+                                 class="img-circle">
+
+
+                            <span th:if="${admininfo != null}"
+                                  th:text="${admininfo.name}">
+                                Admin
+                            </span>
+
+                            <span th:if="${admininfo == null}">
+                                Admin
+                            </span>
+
+
+                        </a>
+
+
+                        <ul class="dropdown-menu dropdown-user">
+
+
+                            <li>
+
+                                <div class="user-box">
+
+                                    <div class="u-img">
+
+                                        <img th:if="${admininfo != null and admininfo.profilepic != null}"
+                                             th:src="@{'/ProfilePic/' + ${admininfo.profilepic}}"
+                                             alt="user">
+
+                                        <img th:if="${admininfo == null or admininfo.profilepic == null}"
+                                             th:src="@{/img/user_img.jpg}"
+                                             alt="user">
+
+                                    </div>
+
+
+                                    <div class="u-text">
+
+                                        <h4 th:if="${admininfo != null}"
+                                            th:text="${admininfo.name}">
+                                            Admin
+                                        </h4>
+
+                                        <h4 th:if="${admininfo == null}">
+                                            Admin
+                                        </h4>
+
+                                        <p class="text-muted">
+                                            business@Agritrade.in
+                                        </p>
+
+
+                                        <a th:href="@{/admin/EditProfile}"
+                                           class="btn btn-rounded btn-danger btn-sm">
+
+                                            View Profile
+
+                                        </a>
+
+                                    </div>
+
+                                </div>
+
+                            </li>
+
+
+                            <div class="dropdown-divider"></div>
+
+
+                            <a class="dropdown-item"
+                               th:href="@{/admin/EditProfile}">
+
+                                <i class="ti-user"></i>
+                                Update Profile Pic
+
+                            </a>
+
+
+                            <div class="dropdown-divider"></div>
+
+
+                            <a class="dropdown-item"
+                               th:href="@{/admin/ChangePassword}">
+
+                                <i class="ti-settings"></i>
+                                Change Password
+
+                            </a>
+
+
+                            <div class="dropdown-divider"></div>
+
+
+                            <a class="dropdown-item"
+                               th:href="@{/admin/logout}">
+
+                                <i class="fa fa-power-off"></i>
+                                Logout
+
+                            </a>
+
+
+                        </ul>
+
+                    </li>
+
+                </ul>
+
+            </div>
+
+        </nav>
+
+    </div>
+
+
+    <!-- ========================================================= -->
+    <!-- SIDEBAR -->
+    <!-- ========================================================= -->
+
+    <div class="sidebar">
+
+        <div class="scrollbar-inner sidebar-wrapper">
+
+
+            <!-- ADMIN PROFILE -->
+
+            <div class="user">
+
+
+                <div class="photo">
+
+                    <img th:if="${admininfo != null and admininfo.profilepic != null}"
+                         th:src="@{'/ProfilePic/' + ${admininfo.profilepic}}"
+                         alt="user-img">
+
+                    <img th:if="${admininfo == null or admininfo.profilepic == null}"
+                         th:src="@{/assets/img/user_img.jpg}"
+                         alt="user-img">
+
+                </div>
+
+
+                <div class="info">
+
+
+                    <a data-toggle="collapse"
+                       href="#collapseExample"
+                       aria-expanded="true">
+
+
+                        <span>
+
+                            <span th:if="${admininfo != null}"
+                                  th:text="${admininfo.name}">
+                                Admin
+                            </span>
+
+                            <span th:if="${admininfo == null}">
+                                Admin
+                            </span>
+
+
+                            <span class="user-level">
+                                Administrator
+                            </span>
+
+                        </span>
+
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- ========================================================= -->
+            <!-- NAVIGATION -->
+            <!-- ========================================================= -->
+
+            <ul class="nav">
+
+
+                <!-- DASHBOARD -->
+
+                <li class="nav-item"
+                    th:classappend="${active1}">
+
+                    <a th:href="@{/admin/dashboard}">
+
+                        <i class="la la-dashboard"></i>
+
+                        <p>
+                            Dashboard
+                        </p>
+
+                        <span class="badge badge-count"></span>
+
+                    </a>
+
+                </li>
+
+
+                <!-- ========================================================= -->
+                <!-- MANAGE MERCHANTS -->
+                <!-- ========================================================= -->
+
+                <li class="nav-item dropdown hidden-caret"
+                    th:classappend="${active2}">
+
+                    <a class="nav-link"
+                       href="#"
+                       id="merchantDropdown"
+                       role="button"
+                       data-toggle="dropdown"
+                       aria-haspopup="true"
+                       aria-expanded="false">
+
+                        <i class="la la-user-plus"></i>
+
+                        <p style="white-space: nowrap;">
+                            Manage Merchants
+                        </p>
+
+                        <span class="badge"
+                              style="font-size:18px;">
+
+                            <span class="caret"
+                                  style="margin-left:-10px;">
+                            </span>
+
+                        </span>
+
+                    </a>
+
+
+                    <div class="dropdown-menu w-75"
+                         aria-labelledby="merchantDropdown">
+
+
+                        <a class="dropdown-item"
+                           th:href="@{/admin/newmerchant}">
+
+                            New Merchants
+
+                        </a>
+
+
+                        <a class="dropdown-item"
+                           th:href="@{/admin/verifiedmerchant}">
+
+                            Verified Merchants
+
+                        </a>
+
+
+                        <a class="dropdown-item"
+                           th:href="@{/admin/disablemerchant}">
+
+                            Disabled Merchants
+
+                        </a>
+
+
+                    </div>
+
+                </li>
+
+
+                <!-- ========================================================= -->
+                <!-- MANAGE FARMERS -->
+                <!-- ========================================================= -->
+
+                <li class="nav-item dropdown hidden-caret"
+                    th:classappend="${active3}">
+
+                    <a class="nav-link dropdown-toggle"
+                       href="#"
+                       id="farmerDropdown"
+                       role="button"
+                       data-toggle="dropdown"
+                       aria-haspopup="true"
+                       aria-expanded="false">
+
+                        <i class="la la-user-plus"></i>
+
+                        <p>
+                            Manage Farmers
+                        </p>
+
+                        <span class="badge"
+                              style="font-size:18px;">
+
+                            <span class="caret"
+                                  style="margin-left:-15px;">
+                            </span>
+
+                        </span>
+
+                    </a>
+
+
+                    <div class="dropdown-menu w-75"
+                         aria-labelledby="farmerDropdown">
+
+
+                        <a class="dropdown-item"
+                           th:href="@{/admin/newformer}">
+
+                            New Farmers
+
+                        </a>
+
+
+                        <a class="dropdown-item"
+                           th:href="@{/admin/verifiedformer}">
+
+                            Verified Farmers
+
+                        </a>
+
+
+                        <a class="dropdown-item"
+                           th:href="@{/admin/disableformer}">
+
+                            Disabled Farmers
+
+                        </a>
+
+
+                    </div>
+
+                </li>
+
+
+                <!-- ========================================================= -->
+                <!-- MANAGE FPOs -->
+                <!-- ========================================================= -->
+
+                <li class="nav-item dropdown hidden-caret"
+                    th:classappend="${active7}">
+
+                    <a class="nav-link dropdown-toggle"
+                       href="#"
+                       id="fpoDropdown"
+                       role="button"
+                       data-toggle="dropdown"
+                       aria-haspopup="true"
+                       aria-expanded="false">
+
+                        <i class="la la-users"></i>
+
+                        <p>
+                            Manage FPOs
+                        </p>
+
+                        <span class="badge"
+                              style="font-size:18px;">
+
+                            <span class="caret"
+                                  style="margin-left:-15px;">
+                            </span>
+
+                        </span>
+
+                    </a>
+
+
+                    <div class="dropdown-menu w-75"
+                         aria-labelledby="fpoDropdown">
+
+
+                        <a class="dropdown-item"
+                           th:href="@{/admin/newfpo}">
+
+                            New FPOs
+
+                        </a>
+
+
+                        <a class="dropdown-item"
+                           th:href="@{/admin/verifiedfpo}">
+
+                            Verified FPOs
+
+                        </a>
+
+
+                        <a class="dropdown-item"
+                           th:href="@{/admin/disablefpo}">
+
+                            Disabled FPOs
+
+                        </a>
+
+
+                    </div>
+
+                </li>
+
+
+                <!-- ========================================================= -->
+                <!-- DEMO ACCESS -->
+                <!-- ========================================================= -->
+
+                <li class="nav-item"
+                    th:classappend="${activeDemoAccess}">
+
+                    <a th:href="@{/admin/DemoAccess}">
+
+                        <i class="la la-flask"></i>
+
+                        <p>
+                            Demo Access
+                        </p>
+
+                    </a>
+
+                </li>
+
+
+                <!-- ========================================================= -->
+                <!-- AI DEMAND FORECAST -->
+                <!-- ========================================================= -->
+
+                <li class="nav-item"
+                    th:classappend="${activeForecastHistory}">
+
+                    <a th:href="@{/admin/forecast-history}">
+
+                        <i class="la la-line-chart"></i>
+
+                        <p>
+                            AI Demand Forecast
+                        </p>
+
+                    </a>
+
+                </li>
+
+
+                <!-- ========================================================= -->
+                <!-- MARKET PRICES -->
+                <!-- ========================================================= -->
+
+                <li class="nav-item"
+                    th:classappend="${activeMarketPrices}">
+
+                    <a th:href="@{/admin/market-prices}">
+
+                        <i class="la la-money"></i>
+
+                        <p>
+                            Market Prices
+                        </p>
+
+                    </a>
+
+                </li>
+
+
+                <!-- ========================================================= -->
+                <!-- VIEW ORDERS -->
+                <!-- ========================================================= -->
+
+                <li class="nav-item"
+                    th:classappend="${active4}">
+
+                    <a th:href="@{/admin/ViewOrder}">
+
+                        <i class="la la-fonticons"></i>
+
+                        <p>
+                            View Orders
+                        </p>
+
+                    </a>
+
+                </li>
+
+
+                <!-- ========================================================= -->
+                <!-- ADD CATEGORY -->
+                <!-- ========================================================= -->
+
+                <li class="nav-item"
+                    th:classappend="${active5}">
+
+                    <a th:href="@{/admin/AddCategory}">
+
+                        <i class="la la-bell"></i>
+
+                        <p>
+                            Add Category
+                        </p>
+
+                    </a>
+
+                </li>
+
+
+                <!-- ========================================================= -->
+                <!-- ENQUIRIES -->
+                <!-- ========================================================= -->
+
+                <li class="nav-item"
+                    th:classappend="${active6}">
+
+                    <a th:href="@{/admin/enquiry}">
+
+                        <i class="la la-bullhorn"></i>
+
+                        <p>
+                            Enquiries
+                        </p>
+
+                    </a>
+
+                </li>
+
+
+                <li class="nav-item py-4">
+                    &nbsp;
+                </li>
+
+
+            </ul>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================================= -->
+    <!-- MAIN PANEL -->
+    <!-- ========================================================= -->
+
+    <div class="main-panel">
+
+
+        <div class="content">
+
+
+            <div th:replace="${content}">
+            </div>
+
+
+        </div>
+
+
+        <!-- ========================================================= -->
+        <!-- FOOTER -->
+        <!-- ========================================================= -->
+
+        <footer class="footer">
+
+
+            <div class="container-fluid">
+
+
+                <nav class="pull-left">
+
+
+                    <ul class="nav">
+
+
+                        <li class="nav-item">
+
+                            <a class="nav-link"
+                               th:href="@{/admin/dashboard}">
+
+                                Dashboard
+
+                            </a>
+
+                        </li>
+
+
+                        <li class="nav-item">
+
+                            <a class="nav-link"
+                               href="#">
+
+                                Help
+
+                            </a>
+
+                        </li>
+
+
+                        <li class="nav-item">
+
+                            <a class="nav-link"
+                               href="">
+
+                                Licenses
+
+                            </a>
+
+                        </li>
+
+
+                    </ul>
+
+                </nav>
+
+
+                <div class="copyright ml-auto">
+
+                    2025, made with
+
+                    <i class="la la-heart heart text-danger"></i>
+
+                    by
+
+                    <a href="https://www.instagram.com/lucky_agency_4149"
+                       target="_blank">
+
+                        Manish Yadav
+
+                    </a>
+
+                </div>
+
+
+            </div>
+
+        </footer>
+
+
+    </div>
+
+</div>
+
+
+<!-- ========================================================= -->
+<!-- JAVASCRIPT -->
+<!-- ========================================================= -->
+
+<script th:src="@{/assets/js/core/jquery.3.2.1.min.js}"></script>
+
+<script th:src="@{/assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js}"></script>
+
+<script th:src="@{/assets/js/core/popper.min.js}"></script>
+
+<script th:src="@{/assets/js/core/bootstrap.min.js}"></script>
+
+<script th:src="@{/assets/js/plugin/chartist/chartist.min.js}"></script>
+
+<script th:src="@{/assets/js/plugin/chartist/plugin/chartist-plugin-tooltip.min.js}"></script>
+
+<script th:src="@{/assets/js/plugin/bootstrap-toggle/bootstrap-toggle.min.js}"></script>
+
+<script th:src="@{/assets/js/plugin/jquery-mapael/jquery.mapael.min.js}"></script>
+
+<script th:src="@{/assets/js/plugin/jquery-mapael/maps/world_countries.min.js}"></script>
+
+<script th:src="@{/assets/js/plugin/chart-circle/circles.min.js}"></script>
+
+<script th:src="@{/assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js}"></script>
+
+<script th:src="@{/assets/js/ready.min.js}"></script>
+
+<script th:src="@{/assets/js/demo.js}"></script>
+
+
+<script type="text/javascript"
+        src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js">
+</script>
+
+
+<script type="text/javascript"
+        src="https://cdn.datatables.net/buttons/1.6.1/js/dataTables.buttons.min.js">
+</script>
+
+
+<script type="text/javascript"
+        src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.flash.min.js">
+</script>
+
+
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js">
+</script>
+
+
+<script type="text/javascript"
+        src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.html5.min.js">
+</script>
+
+
+<script type="text/javascript"
+        src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.print.min.js">
+</script>
+
+
+<script type="text/javascript">
+
+$(document).ready(function(){
+
+    if ($('#example').length) {
+
+        $('#example').DataTable({
+
+            dom:'Bfrtip',
+
+            buttons:[
+                'copy',
+                'csv',
+                'excel',
+                'pageLength'
+            ],
+
+            lengthMenu:[
+                10,
+                25,
+                50,
+                100,
+                -1
+            ]
+
+        });
+
+    }
+
+});
+
+</script>
+
+
+</body>
+
+</html>

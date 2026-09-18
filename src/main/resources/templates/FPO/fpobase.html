@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org" th:fragment="layout(content)">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FPO Zone - Agritrade Hub</title>
+<link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:300,400,600,700,800">
+<link rel="stylesheet" th:href="@{/assets/css/ready.css}">
+<link rel="stylesheet" th:href="@{/assets/css/demo.css}">
+</head>
+<body>
+<div class="wrapper">
+<div class="main-header">
+<div class="logo-header text-center"><a th:href="@{/FPO/Dashboard}" class="logo">Agritrade Hub</a></div>
+<nav class="navbar navbar-header navbar-expand-lg"><div class="container-fluid">
+<ul class="navbar-nav ml-auto align-items-center">
+<li class="nav-item"><span class="nav-link"><strong th:text="${fpo.name}">FPO</strong></span></li>
+<li class="nav-item"><a class="nav-link" th:href="@{/FPO/Logout}">Logout</a></li>
+</ul>
+</div></nav>
+</div>
+
+<div class="sidebar">
+<div class="scrollbar-inner sidebar-wrapper">
+<ul class="nav">
+<li class="nav-item" th:classappend="${active1}">
+<a th:href="@{/FPO/Dashboard}"><i class="la la-dashboard"></i><p>Dashboard</p></a>
+</li>
+<li class="nav-item" th:classappend="${active2}">
+<a th:href="@{/FPO/Members}"><i class="la la-users"></i><p>Member Farmers</p></a>
+</li>
+<li class="nav-item" th:classappend="${active4}">
+<a th:href="@{/FPO/Orders}" class="d-flex align-items-center justify-content-between">
+<span><i class="la la-bell"></i><p class="d-inline">Bulk Orders</p></span>
+<span th:if="${pendingOrderCount != null && pendingOrderCount > 0}" class="badge bg-danger" th:text="${pendingOrderCount}">0</span>
+</a>
+</li>
+<li class="nav-item" th:if="${fpo != null && fpo.demoEnabled}"><a class="nav-link" th:href="@{/FPO/DemoOrders}">🧪 Demo Orders</a></li>
+<li class="nav-item" th:classappend="${active5}">
+<a th:href="@{/FPO/Shipments}"><i class="la la-truck"></i><p>Shipments</p></a>
+</li>
+<li class="nav-item" th:classappend="${active3}">
+<a th:href="@{/FPO/Products}"><i class="la la-shopping-basket"></i><p>Bulk Products</p></a>
+</li>
+
+<!-- AI Demand Forecast - NEW; existing routes unchanged -->
+<li class="nav-item" th:classappend="${activeDemandForecast}">
+<a th:href="@{/DemandForecast/FPO}">
+<i class="la la-line-chart"></i>
+<p>AI Demand Forecast</p>
+</a>
+</li>
+
+</ul>
+</div>
+</div>
+
+<div class="main-panel">
+<div class="content"><div th:replace="${content}"></div></div>
+</div>
+</div>
+
+<script th:src="@{/assets/js/core/jquery.3.2.1.min.js}"></script>
+<script th:src="@{/assets/js/core/popper.min.js}"></script>
+<script th:src="@{/assets/js/core/bootstrap.min.js}"></script>
+</body>
+</html>

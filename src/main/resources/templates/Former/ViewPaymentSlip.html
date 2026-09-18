@@ -1,0 +1,159 @@
+<html th:replace="~{Former/formerbase::layout(~{::section})}">
+	<body>
+		<section>
+			<div class="container">
+    <div class="card" id="paySlipCard">
+        <div class="card-header text-center py-4">
+            <h4>Payment Receipt</h4>
+        </div>
+        <div class="card-body p-4">
+            <h5 class="mb-3 text-success">Order Details</h5>
+             <table class="table table-bordered">
+                <tr><th>Product Name</th><td th:text="${order.productName}"></td></tr>
+                <tr><th>Quantity</th><td th:text="${order.quantity}"></td></tr>
+                <tr><th>Price per Unit</th><td th:text="'₹ ' + ${order.pricePerUnit}"></td></tr>
+                <tr><th>Total Amount</th><td th:text="'₹ ' + ${payment.amount}"></td></tr>
+                <tr><th>Transaction ID</th><td th:text="${payment.transactionId}"></td></tr>
+                <tr><th>Payment Date</th><td th:text="${#temporals.format(paymentDate, 'dd MMM yyyy HH:mm')}"></td></tr>
+            </table>
+
+            <h5 class="mt-4 mb-3 text-primary">Buyer & Seller Info</h5>
+            <table class="table table-bordered">
+                <tr><th>Buyer Name</th><td th:text="${order.merchant.name}"></td></tr>
+                <tr><th>Buyer Email</th><td th:text="${order.merchant.email}"></td></tr>
+                <tr><th>Farmer Name</th><td th:text="${order.farmer.name}"></td></tr>
+                <tr><th>Farmer Contact</th><td th:text="${order.farmer.contactno}"></td></tr>
+                <tr><th>Farmer Location</th><td th:text="${order.farmer.address}"></td></tr>
+            </table>
+
+            <div class="text-end mt-4">
+                <a href="Orders" id="btn1" class="btn btn-secondary me-2 btn-sm btn-rounded">Back to Home</a>
+                <button id="btn2" onclick="printCard()" class="btn btn-primary btn-sm me-2 btn-rounded">Print Pay Slip</button>
+                <button id="btn3" onclick="generateReceiptPDF()" class="btn btn-success btn-sm btn-rounded">Download PDF</button>
+            </div>
+        </div>
+    </div>
+</div>
+		
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+		
+		<script>
+    async function generateReceiptPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        const product = "[[${order.productName}]]";
+        const quantity = parseFloat("[[${order.quantity}]]");
+        const pricePerUnit = parseFloat("[[${order.pricePerUnit}]]");
+        const totalAmount = quantity * pricePerUnit;
+        const transactionId = "[[${payment.transactionId}]]";
+        const paymentDate = "[[${#temporals.format(payment.paymentDate, 'dd MMM yyyy HH:mm')}]]";
+
+        const seller = {
+            name: "[[${order.farmer.name}]]",
+            contact: "[[${order.farmer.contactno}]]",
+            location: "[[${order.farmer.address}]]"
+        };
+        const buyer = {
+            name: "[[${order.merchant.name}]]",
+            email: "[[${order.merchant.email}]]"
+        };
+
+        doc.setFontSize(18);
+        doc.setTextColor(34, 139, 34);
+        doc.text("Agritrade Hub - Payment Slip", 20, 20);
+
+        doc.setFontSize(12);
+        doc.setTextColor(0, 0, 0);
+
+        let y = 35;
+        const lineHeight = 10;
+
+        const lines = [
+            `Product Name     : ${product}`,
+            `Quantity         : ${quantity}`,
+            `Price per Unit   : ${pricePerUnit.toFixed(2)} Rs.`,
+            `Total Amount     : ${totalAmount.toFixed(2)} Rs.`,
+            `Transaction ID   : ${transactionId}`,
+            `Payment Date     : ${paymentDate}`,
+            "",
+            `Buyer Name       : ${buyer.name}`,
+            `Buyer Email      : ${buyer.email}`,
+            "",
+            `Farmer Name      : ${seller.name}`,
+            `Farmer Contact   : ${seller.contact}`,
+            `Farmer Location  : ${seller.location}`,
+            "",
+            "Thank you for using Agritrade Hub!"
+        ];
+
+        lines.forEach(line => {
+            doc.text(line, 20, y);
+            y += lineHeight;
+        });
+
+        doc.save(`PaymentSlip_${transactionId}.pdf`);
+    }
+</script>	
+
+<script>
+    function printCard() {
+    	document.getElementById("btn1").style.display = 'none'; 
+    	document.getElementById("btn2").style.display = 'none'; 
+    	document.getElementById("btn3").style.display = 'none'; 
+        
+    	const cardContent = document.getElementById("paySlipCard").innerHTML;
+        const originalContent = document.body.innerHTML;
+		document.body.innerHTML = cardContent;
+        window.print();
+        document.body.innerHTML = originalContent;
+        location.reload(); // Optional: to reload and restore event listeners
+    }
+</script>
+
+<style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .card {
+            border-radius: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+        .card-header {
+            background: linear-gradient(to right, #28a745, #218838);
+            color: white;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+        }
+        .btn-rounded {
+            border-radius: 10px;
+        }
+        
+        @media print {
+        body * {
+            visibility: hidden;
+        }
+        
+        .btn * {
+            visibility: hidden !important;
+            opacity: 0;
+        }
+        
+        #paySlipCard, #paySlipCard * {
+            visibility: visible;
+        }
+        #paySlipCard {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+        }
+        .btn {
+            display: none !important;
+        }
+    }
+       
+    </style>
+		</section>
+	</body>
+</html>

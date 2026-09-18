@@ -1,0 +1,159 @@
+<html th:replace="~{Former/formerbase::layout(~{::section})}">
+<section>
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3>🤝 My FPO Contributions</h3>
+            <p class="text-muted mb-0">
+                Your produce committed to FPO bulk supply and the amount
+                attributed to you using your own farmer contribution rate.
+            </p>
+        </div>
+        <a th:href="@{/Former/Dashboard}" class="btn btn-outline-secondary">
+            Back to Dashboard
+        </a>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card border-primary shadow-sm">
+                <div class="card-body">
+                    <div class="text-muted">Total Contributed</div>
+                    <h3 th:text="${totalContributed}">0</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-success shadow-sm">
+                <div class="card-body">
+                    <div class="text-muted">Currently Available</div>
+                    <h3 th:text="${totalAvailable}">0</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-warning shadow-sm">
+                <div class="card-body">
+                    <div class="text-muted">Sold Through FPO</div>
+                    <h3 th:text="${totalSold}">0</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-info shadow-sm">
+                <div class="card-body">
+                    <div class="text-muted">My Attributed Payout</div>
+                    <h3 th:text="'₹ ' + ${soldValue}">₹ 0</h3>
+                    <small class="text-muted">
+                        Calculated using your farmer rate
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body table-responsive">
+
+            <table class="table table-bordered table-hover align-middle">
+
+                <thead class="table-success">
+                <tr>
+                    <th>FPO</th>
+                    <th>Product</th>
+                    <th>My Contributed Quantity</th>
+                    <th>Available</th>
+                    <th>Sold</th>
+                    <th>My Farmer Rate</th>
+                    <th>My Sold Payout</th>
+                    <th>FPO Merchant Price</th>
+                    <th>Source Product</th>
+                </tr>
+                </thead>
+
+                <tbody>
+
+                <tr th:each="c : ${contributions}">
+
+                    <td th:text="${c.fpoProduct.fpo.name}">
+                        FPO
+                    </td>
+
+                    <td th:text="${c.fpoProduct.productName}">
+                        Rice
+                    </td>
+
+                    <td th:text="${c.quantityContributed}">
+                        0
+                    </td>
+
+                    <td th:text="${c.quantityAvailable}">
+                        0
+                    </td>
+
+                    <td th:text="${c.quantityContributed - c.quantityAvailable}">
+                        0
+                    </td>
+
+                    <!-- Farmer's own agreed/source rate -->
+                    <td>
+                        ₹
+                        <span th:text="${c.sourceProduct != null and c.sourceProduct.pricePerUnit != null
+                                ? c.sourceProduct.pricePerUnit
+                                : 0}">
+                            0
+                        </span>
+                    </td>
+
+                    <!-- Farmer payout = sold quantity × farmer rate -->
+                    <td>
+                        ₹
+                        <span th:text="${c.sourceProduct != null and c.sourceProduct.pricePerUnit != null
+                                ? (c.quantityContributed - c.quantityAvailable) * c.sourceProduct.pricePerUnit
+                                : 0}">
+                            0
+                        </span>
+                    </td>
+
+                    <!-- FPO's selling price to merchant -->
+                    <td>
+                        ₹
+                        <span th:text="${c.fpoProduct.pricePerUnit}">
+                            0
+                        </span>
+                    </td>
+
+                    <td>
+                        <span th:if="${c.sourceProduct != null}"
+                              th:text="${c.sourceProduct.productName + ' • ' + c.sourceProduct.quantity + ' kg'}">
+                            Rice
+                        </span>
+
+                        <span th:unless="${c.sourceProduct != null}"
+                              class="text-muted">
+                            Linked source unavailable
+                        </span>
+                    </td>
+
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(contributions)}">
+                    <td colspan="9"
+                        class="text-center text-muted py-4">
+                        You have no FPO contributions yet.
+                    </td>
+                </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+    </div>
+
+</div>
+</section>
+</html>

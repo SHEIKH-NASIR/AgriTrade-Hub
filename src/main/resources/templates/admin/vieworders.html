@@ -1,0 +1,263 @@
+
+<html th:replace="~{admin/adminbase::layout(~{::section})}">
+<head></head>
+
+<body>
+<section>
+
+    <div class="row">
+
+        <div class="container">
+
+            <div class="row">
+
+                <div class="card w-100">
+
+                    <div class="card-header">
+
+                        <div class="row">
+
+                            <div class="col-md-8">
+                                <div class="card-title">
+                                    Orders Received
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <select class="form-control"
+                                        id="statusFilter">
+
+                                    <option value="">All Orders</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Confirmed">Confirmed</option>
+                                    <option value="Delivered">Delivered</option>
+                                    <option value="Cancelled">Cancelled</option>
+
+                                </select>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <div th:if="${success}"
+                             class="alert alert-success"
+                             th:text="${success}">
+                        </div>
+
+                        <div th:if="${error}"
+                             class="alert alert-danger"
+                             th:text="${error}">
+                        </div>
+
+                        <div class="table-responsive">
+
+                            <table class="table table-bordered table-hover text-center"
+                                   id="example">
+
+                                <thead class="table-success">
+
+                                <tr>
+                                    <th>Sr. No.</th>
+                                    <th>Merchant</th>
+                                    <th>Farmer / FPO</th>
+                                    <th>Product</th>
+                                    <th>Qty</th>
+                                    <th>Price/Unit</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th>Order Date</th>
+                                    <th>Delivery Date</th>
+                                </tr>
+
+                                </thead>
+
+                                <tbody>
+
+                                <tr th:each="order, srno : ${orderList}"
+                                    th:data-status="${order.orderStatus}"
+                                    th:classappend="
+                                        ${order.orderStatus == 'Cancelled'} ? 'table-danger' :
+                                        (${order.orderStatus == 'Delivered'} ? 'table-success' :
+                                        (${order.orderStatus == 'Confirmed'} ? 'table-warning' : ''))
+                                    ">
+
+                                    <!-- Sr No -->
+                                    <td th:text="${srno.index + 1}">
+                                        1
+                                    </td>
+
+                                    <!-- Merchant -->
+                                    <td>
+                                        <span th:if="${order.merchant != null}"
+                                              th:text="${order.merchant.name}">
+                                            Merchant Name
+                                        </span>
+
+                                        <span th:unless="${order.merchant != null}">
+                                            N/A
+                                        </span>
+                                    </td>
+
+                                    <!-- Farmer / FPO -->
+                                    <td>
+
+                                        <!-- Normal farmer order -->
+                                        <span th:if="${order.farmer != null}"
+                                              th:text="${order.farmer.name}">
+                                            Farmer Name
+                                        </span>
+
+                                        <!-- FPO bulk order -->
+                                        <span th:if="${order.farmer == null and order.fpo != null}"
+                                              th:text="${order.fpo.name}">
+                                            FPO Name
+                                        </span>
+
+                                        <!-- Fallback -->
+                                        <span th:if="${order.farmer == null and order.fpo == null}">
+                                            FPO / Bulk Order
+                                        </span>
+
+                                    </td>
+
+                                    <!-- Product -->
+                                    <td th:text="${order.productName}">
+                                        Rice
+                                    </td>
+
+                                    <!-- Quantity -->
+                                    <td th:text="${order.quantity}">
+                                        100
+                                    </td>
+
+                                    <!-- Price -->
+                                    <td th:text="${order.pricePerUnit}">
+                                        50
+                                    </td>
+
+                                    <!-- Total -->
+                                    <td th:text="${order.quantity * order.pricePerUnit}">
+                                        5000
+                                    </td>
+
+                                    <!-- Status -->
+                                    <td>
+
+                                        <span class="badge"
+                                              th:classappend="
+                                                ${order.orderStatus == 'Pending'} ? ' bg-warning text-dark' :
+                                                (${order.orderStatus == 'Confirmed'} ? ' bg-primary' :
+                                                (${order.orderStatus == 'Delivered'} ? ' bg-success' :
+                                                (${order.orderStatus == 'Cancelled'} ? ' bg-danger' :
+                                                ' bg-secondary')))
+                                              "
+                                              th:text="${order.orderStatus}">
+                                            Pending
+                                        </span>
+
+                                    </td>
+
+                                    <!-- Order Date -->
+                                    <td>
+                                        <span th:if="${order.orderDate != null}"
+                                              th:text="${#temporals.format(order.orderDate, 'dd-MM-yyyy HH:mm')}">
+                                        </span>
+
+                                        <span th:unless="${order.orderDate != null}">
+                                            No Records
+                                        </span>
+                                    </td>
+
+                                    <!-- Delivery Date -->
+                                    <td>
+                                        <span th:if="${order.deliveredDate != null}"
+                                              th:text="${#temporals.format(order.deliveredDate, 'dd-MM-yyyy HH:mm')}">
+                                        </span>
+
+                                        <span th:unless="${order.deliveredDate != null}">
+                                            No Records
+                                        </span>
+                                    </td>
+
+                                </tr>
+
+                                <!-- Empty State -->
+                                <tr th:if="${orderList == null or #lists.isEmpty(orderList)}">
+
+                                    <td colspan="10"
+                                        class="text-center text-muted py-4">
+                                        No orders found.
+                                    </td>
+
+                                </tr>
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Status Filter -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const filter =
+                document.getElementById("statusFilter");
+
+            const rows =
+                document.querySelectorAll(
+                    "#example tbody tr[data-status]"
+                );
+
+            if (!filter) {
+                return;
+            }
+
+            filter.addEventListener("change", function () {
+
+                const selected =
+                    this.value;
+
+                rows.forEach(function (row) {
+
+                    const status =
+                        row.getAttribute("data-status");
+
+                    row.style.display =
+                        (!selected || status === selected)
+                            ? ""
+                            : "none";
+
+                });
+
+            });
+
+        });
+    </script>
+
+    <script th:if="${success}">
+        Swal.fire({
+            title: 'Order Status Updated!',
+            text: 'Product Order Status Successfully Updated.',
+            icon: 'success',
+            confirmButtonText: 'OK'
+        });
+    </script>
+
+</section>
+</body>
+</html>
+

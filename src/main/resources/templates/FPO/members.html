@@ -1,0 +1,25 @@
+<html th:replace="~{FPO/fpobase::layout(~{::section})}">
+<head></head><body><section>
+<div class="d-flex justify-content-between align-items-center mb-3"><h3>FPO Member Farmers</h3></div>
+<div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+<div class="alert alert-warning" th:if="${msg}" th:text="${msg}"></div>
+<div class="alert alert-info">When a farmer is added, AgriTrade Hub automatically emails the farmer with the FPO name, registration details and membership notification.</div>
+<div class="card mb-4"><div class="card-body">
+<h5>Add Verified Farmer</h5>
+<form method="post" th:action="@{/FPO/Members/Add}" class="row align-items-end">
+	<div class="col-md-8"><label>Farmer</label>
+	<select name="farmerId" class="form-control" required>
+		<option value="">Select farmer</option>
+		<option th:each="farmer : ${farmers}" th:value="${farmer.id}" th:text="${farmer.name + ' - ' + farmer.email}"></option>
+	</select></div>
+	<div class="col-md-4 mt-3"><button class="btn btn-success">Add Member</button></div>
+</form>
+</div></div>
+<div class="card"><div class="card-body table-responsive">
+<table class="table table-bordered"><thead><tr><th>#</th><th>Name</th><th>Email</th><th>Contact</th><th>Address</th><th>Action</th></tr></thead>
+<tbody><tr th:each="farmer,stat : ${members}">
+<td th:text="${stat.index+1}"></td><td th:text="${farmer.name}"></td><td th:text="${farmer.email}"></td><td th:text="${farmer.contactno}"></td><td th:text="${farmer.address}"></td>
+<td><form method="post" th:action="@{/FPO/Members/Remove}"><input type="hidden" name="farmerId" th:value="${farmer.id}"><button class="btn btn-danger btn-sm" onclick="return confirm('Remove this farmer from the FPO?')">Remove</button></form></td>
+</tr><tr th:if="${#lists.isEmpty(members)}"><td colspan="6" class="text-center">No members yet.</td></tr></tbody>
+</table></div></div>
+</section></body></html>

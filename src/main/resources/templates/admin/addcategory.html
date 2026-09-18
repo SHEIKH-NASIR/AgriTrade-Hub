@@ -1,0 +1,41 @@
+<html th:replace="~{admin/adminbase::layout(~{::section})}">
+	<head></head>
+	
+	<body>
+		<section>
+			<div class="row">
+				<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header bg-success text-white text-center rounded-top-4">
+                    <h4 class="mb-0">Add New Product</h4>
+                </div>
+                <div class="card-body p-4">
+                
+						<p th:if="${msg}" class="text-danger py-2" th:text="${msg}"></p>
+					
+                    <form th:action="@{AddCategory}" method="post" enctype="multipart/form-data">
+                        <div class="mb-3 mt-5">
+                            <label class="form-label">Category</label>
+                            <input type="text" class="form-control" name="category" placeholder="e.g. Grains, Vegetables" required>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-success px-4">Add Category</button>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+				
+			</div>
+		</section>
+	</body>
+</html>

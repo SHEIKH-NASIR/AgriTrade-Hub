@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org"
+      th:replace="~{admin/adminbase :: layout(~{::content})}">
+
+<head>
+    <title>Demo Access - Admin</title>
+</head>
+
+<body>
+
+<div th:fragment="content">
+
+    <div class="container-fluid">
+
+        <!-- PAGE HEADER -->
+        <div class="page-header">
+            <h4 class="page-title">
+                🧪 Demo Access Management
+            </h4>
+
+            <p class="text-muted">
+                Enable or disable Demo Mode for individual Merchants,
+                FPOs and Independent Farmers.
+            </p>
+        </div>
+
+
+        <!-- FLASH MESSAGE -->
+        <div th:if="${msg != null}"
+             class="alert alert-info alert-dismissible fade show"
+             role="alert">
+
+            <span th:text="${msg}">
+                Message
+            </span>
+
+            <button type="button"
+                    class="close"
+                    data-dismiss="alert"
+                    aria-label="Close">
+
+                <span aria-hidden="true">&times;</span>
+
+            </button>
+
+        </div>
+
+
+        <!-- =====================================================
+             MERCHANTS
+             ===================================================== -->
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <div class="card-title">
+                    🏪 Merchant Demo Access
+                </div>
+
+                <small class="text-muted">
+                    Only merchants with Demo Access enabled
+                    can create Demo Orders.
+                </small>
+
+            </div>
+
+
+            <div class="card-body">
+
+                <div class="table-responsive">
+
+                    <table class="table table-bordered table-hover">
+
+                        <thead>
+
+                        <tr>
+
+                            <th>ID</th>
+
+                            <th>Name</th>
+
+                            <th>Email</th>
+
+                            <th>Contact</th>
+
+                            <th>Status</th>
+
+                            <th>Demo Access</th>
+
+                            <th>Action</th>
+
+                        </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                        <tr th:each="merchant : ${merchants}">
+
+                            <td th:text="${merchant.id}">
+                                1
+                            </td>
+
+                            <td th:text="${merchant.name}">
+                                Merchant Name
+                            </td>
+
+                            <td th:text="${merchant.email}">
+                                merchant@email.com
+                            </td>
+
+                            <td th:text="${merchant.contactno}">
+                                0000000000
+                            </td>
+
+                            <td>
+
+                                <span th:if="${merchant.status == 'Verified'}"
+                                      class="badge badge-success">
+
+                                    Verified
+
+                                </span>
+
+                                <span th:if="${merchant.status != 'Verified'}"
+                                      class="badge badge-secondary"
+                                      th:text="${merchant.status}">
+
+                                    Status
+
+                                </span>
+
+                            </td>
+
+
+                            <td>
+
+                                <span th:if="${merchant.demoEnabled}"
+                                      class="badge badge-success">
+
+                                    🧪 ENABLED
+
+                                </span>
+
+                                <span th:unless="${merchant.demoEnabled}"
+                                      class="badge badge-secondary">
+
+                                    DISABLED
+
+                                </span>
+
+                            </td>
+
+
+                            <td>
+
+                                <form th:action="@{/admin/DemoAccess/Merchant}"
+                                      method="post">
+
+                                    <input type="hidden"
+                                           name="id"
+                                           th:value="${merchant.id}">
+
+
+                                    <input type="hidden"
+                                           name="enabled"
+                                           th:value="${!merchant.demoEnabled}">
+
+
+                                    <button type="submit"
+                                            th:if="${!merchant.demoEnabled}"
+                                            class="btn btn-success btn-sm">
+
+                                        Enable Demo
+
+                                    </button>
+
+
+                                    <button type="submit"
+                                            th:if="${merchant.demoEnabled}"
+                                            class="btn btn-danger btn-sm">
+
+                                        Disable Demo
+
+                                    </button>
+
+                                </form>
+
+                            </td>
+
+                        </tr>
+
+
+                        <tr th:if="${#lists.isEmpty(merchants)}">
+
+                            <td colspan="7"
+                                class="text-center text-muted">
+
+                                No merchants found.
+
+                            </td>
+
+                        </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <br>
+
+
+        <!-- =====================================================
+             FPOs
+             ===================================================== -->
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <div class="card-title">
+                    🏢 FPO Demo Access
+                </div>
+
+                <small class="text-muted">
+                    Controls Demo Mode for FPO accounts.
+                </small>
+
+            </div>
+
+
+            <div class="card-body">
+
+                <div class="table-responsive">
+
+                    <table class="table table-bordered table-hover">
+
+                        <thead>
+
+                        <tr>
+
+                            <th>ID</th>
+
+                            <th>Name</th>
+
+                            <th>Email</th>
+
+                            <th>Status</th>
+
+                            <th>Demo Access</th>
+
+                            <th>Action</th>
+
+                        </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                        <tr th:each="fpo : ${fpos}">
+
+                            <td th:text="${fpo.id}">
+                                1
+                            </td>
+
+                            <td th:text="${fpo.name}">
+                                FPO Name
+                            </td>
+
+                            <td th:text="${fpo.email}">
+                                fpo@email.com
+                            </td>
+
+                            <td th:text="${fpo.status}">
+                                Verified
+                            </td>
+
+                            <td>
+
+                                <span th:if="${fpo.demoEnabled}"
+                                      class="badge badge-success">
+
+                                    🧪 ENABLED
+
+                                </span>
+
+                                <span th:unless="${fpo.demoEnabled}"
+                                      class="badge badge-secondary">
+
+                                    DISABLED
+
+                                </span>
+
+                            </td>
+
+
+                            <td>
+
+                                <form th:action="@{/admin/DemoAccess/FPO}"
+                                      method="post">
+
+                                    <input type="hidden"
+                                           name="id"
+                                           th:value="${fpo.id}">
+
+                                    <input type="hidden"
+                                           name="enabled"
+                                           th:value="${!fpo.demoEnabled}">
+
+
+                                    <button type="submit"
+                                            th:if="${!fpo.demoEnabled}"
+                                            class="btn btn-success btn-sm">
+
+                                        Enable Demo
+
+                                    </button>
+
+
+                                    <button type="submit"
+                                            th:if="${fpo.demoEnabled}"
+                                            class="btn btn-danger btn-sm">
+
+                                        Disable Demo
+
+                                    </button>
+
+                                </form>
+
+                            </td>
+
+                        </tr>
+
+
+                        <tr th:if="${#lists.isEmpty(fpos)}">
+
+                            <td colspan="6"
+                                class="text-center text-muted">
+
+                                No FPOs found.
+
+                            </td>
+
+                        </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <br>
+
+
+        <!-- =====================================================
+             INDEPENDENT FARMERS
+             ===================================================== -->
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <div class="card-title">
+                    👨‍🌾 Independent Farmer Demo Access
+                </div>
+
+                <small class="text-muted">
+                    Controls Demo Mode for Independent Farmers.
+                </small>
+
+            </div>
+
+
+            <div class="card-body">
+
+                <div class="table-responsive">
+
+                    <table class="table table-bordered table-hover">
+
+                        <thead>
+
+                        <tr>
+
+                            <th>ID</th>
+
+                            <th>Name</th>
+
+                            <th>Email</th>
+
+                            <th>Status</th>
+
+                            <th>Demo Access</th>
+
+                            <th>Action</th>
+
+                        </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                        <tr th:each="farmer : ${farmers}">
+
+                            <td th:text="${farmer.id}">
+                                1
+                            </td>
+
+                            <td th:text="${farmer.name}">
+                                Farmer Name
+                            </td>
+
+                            <td th:text="${farmer.email}">
+                                farmer@email.com
+                            </td>
+
+                            <td th:text="${farmer.status}">
+                                Verified
+                            </td>
+
+                            <td>
+
+                                <span th:if="${farmer.demoEnabled}"
+                                      class="badge badge-success">
+
+                                    🧪 ENABLED
+
+                                </span>
+
+                                <span th:unless="${farmer.demoEnabled}"
+                                      class="badge badge-secondary">
+
+                                    DISABLED
+
+                                </span>
+
+                            </td>
+
+
+                            <td>
+
+                                <form th:action="@{/admin/DemoAccess/Farmer}"
+                                      method="post">
+
+                                    <input type="hidden"
+                                           name="id"
+                                           th:value="${farmer.id}">
+
+                                    <input type="hidden"
+                                           name="enabled"
+                                           th:value="${!farmer.demoEnabled}">
+
+
+                                    <button type="submit"
+                                            th:if="${!farmer.demoEnabled}"
+                                            class="btn btn-success btn-sm">
+
+                                        Enable Demo
+
+                                    </button>
+
+
+                                    <button type="submit"
+                                            th:if="${farmer.demoEnabled}"
+                                            class="btn btn-danger btn-sm">
+
+                                        Disable Demo
+
+                                    </button>
+
+                                </form>
+
+                            </td>
+
+                        </tr>
+
+
+                        <tr th:if="${#lists.isEmpty(farmers)}">
+
+                            <td colspan="6"
+                                class="text-center text-muted">
+
+                                No Independent Farmers found.
+
+                            </td>
+
+                        </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <br>
+
+
+        <!-- WARNING -->
+
+        <div class="alert alert-warning">
+
+            <strong>⚠️ Important:</strong>
+
+            Demo Access only controls whether the account can use
+            Demo functionality.
+
+            <br>
+
+            It does not itself create orders, payments or inventory
+            changes.
+
+            <br>
+
+            Real orders and Razorpay payments remain separate.
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

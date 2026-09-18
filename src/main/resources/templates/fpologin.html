@@ -1,0 +1,21 @@
+<html th:replace="~{base::layout(~{::main})}">
+<head></head>
+<body>
+<main class="main">
+	<div class="page-title dark-background pt-5 mt-5">
+		<div class="container position-relative mt-5"><h1>FPO Login</h1></div>
+	</div>
+	<section class="contact section pt-5">
+		<div class="col-lg-5 mx-auto info">
+			<div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
+			<form method="post" th:action="@{/FPOLogin}" th:object="${dto}">
+				<div class="form-group mt-3"><label>Email</label><input type="email" class="form-control" th:field="*{email}" required></div>
+				<div class="form-group mt-3"><label>Password</label><input type="password" class="form-control" th:field="*{password}" required></div>
+				<div class="text-center mt-4"><button class="btn btn-success px-5">Login</button></div>
+			</form>
+			<p class="text-center mt-3"><a href="/fporegistration">Register your FPO</a></p>
+		</div>
+	</section>
+</main>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<html th:replace="~{base::layout(~{::main})}">
+<head></head>
+<body>
+	<main class="main">
+
+		<!-- Page Title -->
+		<div class="page-title dark-background pt-5 mt-5" data-aos="fade" style="background-image: url(img/page-title-bg.webp);">
+			<div class="container position-relative mt-5">
+				 <h1>Merchant Login</h1>
+				<!--<p>Home / Contact</p> -->
+				<nav class="breadcrumbs">
+					<ol>
+						<li><a href="/">Home</a></li>
+						<li class="current">Merchant Login</li>
+					</ol>
+				</nav>
+			</div>
+		</div>
+		<!-- End Page Title -->
+
+		<!-- Contact Section -->
+		<section id="contact" class="contact section pt-5">
+
+			<div class="container" data-aos="fade">
+
+				<div class="row gy-5 gx-lg-5">
+
+					
+					<div class="col-lg-6 shadow p-4 h-100 mx-auto px-5">
+						<form method="post" th:action="@{/Mlogin}" th:object="${dto}" class="registration-form">
+							<div class="row">
+								<div class="col-md-12 text-center">
+									<img alt="image not found" src="img/fav-icon.jpg" class="w-25 mx-auto">
+								</div>
+								<div class="col-md-12 form-group mt-3">
+									<label>Enter Your UserId(Email)</label>
+									<input type="email" th:field="${dto.email}" class="form-control" id="email" placeholder="Your Email(User Id)" required>
+								</div>
+								<div class="col-md-12 form-group mt-3">
+									<label>Enter Your Password</label>
+									<input type="password" th:field="${dto.password}" class="form-control" id="password" placeholder="Password" required>
+								</div>
+							</div>
+
+							<div class="my-3">
+								<div class="error-msg text-center" th:if="${error}" th:text="${error}"></div>
+							</div>
+							<div class="text-center">
+								<button type="submit">Login</button>
+							</div>
+						</form>
+					</div>
+					<!-- End Contact Form -->
+
+				</div>
+
+			</div>
+
+		</section>
+		<!-- /Contact Section -->
+
+		
+		
+	</main>
+
+</body>
+</html>

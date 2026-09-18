@@ -1,0 +1,49 @@
+<html th:replace="~{Merchant/merchantbase::layout(~{::section})}">
+<body>
+<section class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header bg-primary text-white text-center rounded-top-4">
+                    <h3 class="m-0">🧾 Merchant Profile</h3>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row">
+                        <!-- Profile Picture -->
+                        <div class="col-md-4 text-center">
+                            <img th:src="@{${merchant.profilepic != null} ? '/ProfilePic/' + ${merchant.profilepic} : '/img/user_img.jpg'}" 
+                                 class="img-thumbnail mb-3" alt="Profile Picture" width="200" height="200">
+                             <br>
+                             👤 <strong>Name:</strong> <span th:text="${merchant.name}"></span><br>
+                             <strong>Status:</strong>
+                             <span th:classappend="${merchant.status == 'Active'} ? 'badge bg-success' : 'badge bg-danger'" th:text="${merchant.status}"></span>
+                        </div>
+
+                        <!-- Merchant Info -->
+                        <div class="col-md-8">
+                            <ul class="list-group list-group-flush fs-5">
+                                <li class="list-group-item">👤 <strong>Name:</strong> <span th:text="${merchant.name}"></span></li>
+                                <li class="list-group-item">📧 <strong>Email:</strong> <span th:text="${merchant.email}"></span></li>
+                                <li class="list-group-item">📞 <strong>Contact No:</strong> <span th:text="${merchant.contactno}"></span></li>
+                                <li class="list-group-item">🆔 <strong>Aadhar No:</strong> <span th:text="${merchant.aadharno}"></span></li>
+                                <li class="list-group-item">🪪 <strong>PAN No:</strong> <span th:text="${merchant.pancardno}"></span></li>
+                                <li class="list-group-item">🏢 <strong>Company:</strong> <span th:text="${merchant.companyname}"></span></li>
+                                <li class="list-group-item">📍 <strong>Address:</strong> <span th:text="${merchant.address}"></span></li>
+                                <li class="list-group-item">🗓️ <strong>Reg Date:</strong> <span th:text="${merchant.regdate}"></span></li>
+                                
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer text-center">
+                    <a th:href="@{/Merchant/EditProfile}" class="btn btn-warning">
+                        ✏️ Edit Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

@@ -1,0 +1,345 @@
+<html th:replace="~{Former/formerbase::layout(~{::section})}">
+<head></head>
+<body>
+
+<section>
+
+    <div class="row">
+
+        <div class="col-md-12">
+
+            <div class="card shadow-sm">
+
+                <div class="card-header">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+
+                            <h4 class="card-title mb-1">
+                                🤖 AI Demand Forecast
+                            </h4>
+
+                            <p class="text-muted mb-0">
+                                AI-powered 30-day demand prediction using your historical orders,
+                                demand trend, seasonality and current personal supply.
+                            </p>
+
+                        </div>
+
+                        <span class="badge bg-success">
+                            AI / ML Forecast
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <!-- NO DATA -->
+
+                    <div th:if="${#lists.isEmpty(forecasts)}"
+                         class="text-center py-5">
+
+                        <h5 class="text-muted">
+                            No forecast data available yet.
+                        </h5>
+
+                        <p class="text-muted mb-0">
+                            Add products or receive orders to give the AI
+                            forecasting engine historical data.
+                        </p>
+
+                    </div>
+
+
+                    <!-- FORECAST TABLE -->
+
+                    <div th:unless="${#lists.isEmpty(forecasts)}"
+                         class="table-responsive">
+
+                        <table class="table table-bordered table-hover align-middle">
+
+                            <thead class="table-success text-center">
+
+                            <tr>
+
+                                <th>Product</th>
+
+                                <th>
+                                    AI Forecast
+                                    <br>
+                                    <small>Next 30 Days</small>
+                                </th>
+
+                                <th>
+                                    Current Supply
+                                </th>
+
+                                <th>
+                                    Demand Gap
+                                </th>
+
+                                <th>
+                                    Trend
+                                </th>
+
+                                <th>
+                                    📅 Seasonality
+                                </th>
+
+                                <th>
+                                    AI Confidence
+                                </th>
+
+                                <th>
+                                    AI Recommendation
+                                </th>
+
+                            </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+                            <tr th:each="forecast : ${forecasts}">
+
+                                <!-- PRODUCT -->
+
+                                <td class="fw-bold"
+                                    th:text="${forecast.productName}">
+                                    Tomato
+                                </td>
+
+
+                                <!-- FORECAST -->
+
+                                <td class="text-center">
+
+                                    <strong
+                                            th:text="${forecast.forecastQuantity}">
+                                        620
+                                    </strong>
+
+                                    kg
+
+                                    <br>
+
+                                    <small class="text-muted"
+                                           th:text="${forecast.forecastPeriod}">
+                                        Next 30 days
+                                    </small>
+
+                                </td>
+
+
+                                <!-- SUPPLY -->
+
+                                <td class="text-center">
+
+                                    <span
+                                            th:text="${forecast.currentSupply}">
+                                        400
+                                    </span>
+
+                                    kg
+
+                                </td>
+
+
+                                <!-- GAP -->
+
+                                <td class="text-center">
+
+                                    <span th:if="${forecast.gap > 0}"
+                                          class="badge bg-danger"
+                                          th:text="'+' + ${forecast.gap} + ' kg'">
+
+                                        +220 kg
+
+                                    </span>
+
+
+                                    <span th:if="${forecast.gap < 0}"
+                                          class="badge bg-success"
+                                          th:text="${forecast.gap} + ' kg'">
+
+                                        -120 kg
+
+                                    </span>
+
+
+                                    <span th:if="${forecast.gap == 0}"
+                                          class="badge bg-secondary">
+
+                                        0 kg
+
+                                    </span>
+
+                                </td>
+
+
+                                <!-- TREND -->
+
+                                <td class="text-center">
+
+                                    <span th:if="${#strings.startsWith(forecast.trend, '↑')}"
+                                          class="badge bg-warning text-dark"
+                                          th:text="${forecast.trend}">
+
+                                        ↑ Increasing
+
+                                    </span>
+
+
+                                    <span th:if="${#strings.startsWith(forecast.trend, '↓')}"
+                                          class="badge bg-info text-dark"
+                                          th:text="${forecast.trend}">
+
+                                        ↓ Decreasing
+
+                                    </span>
+
+
+                                    <span th:if="${#strings.startsWith(forecast.trend, '→')}"
+                                          class="badge bg-secondary"
+                                          th:text="${forecast.trend}">
+
+                                        → Stable
+
+                                    </span>
+
+                                </td>
+
+
+                                <!-- SEASONALITY -->
+                                <td class="text-center">
+                                    <span class="badge bg-light text-dark border">
+                                        📅 Seasonality
+                                    </span>
+                                    <br>
+                                    <small class="text-muted">
+                                        Considered in forecast
+                                    </small>
+                                </td>
+
+                                <!-- CONFIDENCE -->
+
+                                <td class="text-center">
+
+                                    <span class="badge bg-primary"
+                                          th:text="${forecast.confidence} + '%'">
+
+                                        87%
+
+                                    </span>
+
+                                    <br>
+
+                                    <small class="text-muted"
+                                           th:text="${forecast.modelName}">
+                                        ATH AI Demand Regression v1
+                                    </small>
+
+                                </td>
+
+
+                                <!-- RECOMMENDATION -->
+
+                                <td th:text="${forecast.recommendation}">
+
+                                    AI recommends increasing tomato
+                                    supply by approximately 220 kg.
+
+                                </td>
+
+                            </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+
+                    <!-- SUMMARY -->
+
+                    <div th:if="${!#lists.isEmpty(forecasts)}"
+                         class="alert alert-light border mt-4 mb-0">
+
+                        <strong>
+                            🤖 AI Recommendation:
+                        </strong>
+
+                        <span th:each="forecast, stat : ${forecasts}">
+
+                            <span th:if="${forecast.gap > 0}">
+
+                                Increase
+
+                                <strong th:text="${forecast.productName}">
+                                    tomato
+                                </strong>
+
+                                supply by approximately
+
+                                <strong th:text="${forecast.gap}">
+                                    220
+                                </strong>
+
+                                kg
+
+                                <span th:if="${!stat.last}">
+                                    ;
+                                </span>
+
+                            </span>
+
+                        </span>
+
+
+                        <span th:if="${#lists.isEmpty(forecasts.?[gap > 0])}">
+
+                            Your current personal supply is aligned with
+                            or above the AI forecast demand.
+
+                        </span>
+
+                    </div>
+
+
+                    <!-- MODEL INFORMATION -->
+
+                    <div class="mt-3">
+
+                        <small class="text-muted">
+
+                            <strong>How the AI works:</strong>
+
+                            The forecasting engine learns from historical
+                            order demand, recent 7/30-day demand,
+                            previous demand periods, order frequency,
+                            average order quantity and seasonal patterns.
+
+                            The prediction is generated separately for
+                            your independent farmer supply.
+
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+</body>
+</html>

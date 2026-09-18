@@ -1,0 +1,327 @@
+<html th:replace="~{base::layout(~{::main})}">
+<head></head>
+<body>
+	<main class="main">
+
+	<style>
+		.service-card {
+			border-radius: 15px;
+			box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+			transition: transform 0.3s ease;
+		}
+
+		.service-card:hover {
+			transform: translateY(-5px);
+		}
+
+		.service-icon {
+			font-size: 3rem;
+			color: #198754;
+		}
+	</style>
+
+	<!-- Page Title -->
+	<div class="page-title dark-background pt-5 mt-5"
+		data-aos="fade"
+		style="background-image: url(img/page-title-bg.webp);">
+
+		<div class="container position-relative mt-5">
+
+			<h1 th:text="#{services.pagetitle}">Services</h1>
+
+			<nav class="breadcrumbs">
+				<ol>
+					<li>
+						<a href="/" class="fw-bold" th:text="#{common.home}">
+							Home
+						</a>
+					</li>
+
+					<li class="current"
+						th:text="#{services.pagetitle}">
+						Services
+					</li>
+				</ol>
+			</nav>
+
+		</div>
+	</div>
+	<!-- End Page Title -->
+
+
+	<section>
+
+		<div class="container my-5">
+
+			<div class="row text-center mb-4">
+				<div class="col">
+
+					<h2 class="fw-bold text-success"
+						th:text="#{services.heading}">
+						What We Offer
+					</h2>
+
+					<p class="text-muted"
+						th:text="#{services.subheading}">
+						Explore the key features and services of AgriTrade Hub
+					</p>
+
+				</div>
+			</div>
+
+
+			<div class="row g-4">
+
+				<!-- Service 1 -->
+				<div class="col-md-4">
+					<div class="card service-card p-4 h-100 text-center">
+
+						<div class="service-icon mb-3">🌾</div>
+
+						<h5 th:text="#{services.item1.title}">
+							Direct Farmer to Merchant Trading
+						</h5>
+
+						<p class="text-muted"
+							th:text="#{services.item1.desc}">
+							Eliminate middlemen and promote fair pricing by
+							connecting farmers directly with verified merchants.
+						</p>
+
+					</div>
+				</div>
+
+
+				<!-- Service 2 -->
+				<div class="col-md-4">
+					<div class="card service-card p-4 h-100 text-center">
+
+						<div class="service-icon mb-3">📦</div>
+
+						<h5 th:text="#{services.item2.title}">
+							Live Product Listings
+						</h5>
+
+						<p class="text-muted"
+							th:text="#{services.item2.desc}">
+							Farmers can list their available products in real-time,
+							while merchants can browse and place orders anytime.
+						</p>
+
+					</div>
+				</div>
+
+
+				<!-- Service 3 -->
+				<div class="col-md-4">
+					<div class="card service-card p-4 h-100 text-center">
+
+						<div class="service-icon mb-3">🛒</div>
+
+						<h5 th:text="#{services.item3.title}">
+							Easy Order Management
+						</h5>
+
+						<p class="text-muted"
+							th:text="#{services.item3.desc}">
+							Track, manage and update order status with an intuitive
+							dashboard designed for both farmers and merchants.
+						</p>
+
+					</div>
+				</div>
+
+
+				<!-- Service 4 -->
+				<div class="col-md-4">
+					<div class="card service-card p-4 h-100 text-center">
+
+						<div class="service-icon mb-3">📁</div>
+
+						<h5 th:text="#{services.item4.title}">
+							Category-wise Product Filtering
+						</h5>
+
+						<p class="text-muted"
+							th:text="#{services.item4.desc}">
+							Merchants can explore products based on dynamic
+							categories to find exactly what they need quickly.
+						</p>
+
+					</div>
+				</div>
+
+
+				<!-- Service 5 -->
+				<div class="col-md-4">
+					<div class="card service-card p-4 h-100 text-center">
+
+						<div class="service-icon mb-3">🔒</div>
+
+						<h5 th:text="#{services.item5.title}">
+							Secure Login & Profiles
+						</h5>
+
+						<p class="text-muted"
+							th:text="#{services.item5.desc}">
+							Each user gets a secure login and personalized profile
+							for viewing transactions, history, and product updates.
+						</p>
+
+					</div>
+				</div>
+
+
+				<!-- Service 6 -->
+				<div class="col-md-4">
+					<div class="card service-card p-4 h-100 text-center">
+
+						<div class="service-icon mb-3">📈</div>
+
+						<h5 th:text="#{services.item6.title}">
+							Reports & Dashboards
+						</h5>
+
+						<p class="text-muted"
+							th:text="#{services.item6.desc}">
+							Insightful dashboards for users to view their orders,
+							revenue, and activity — updated in real-time.
+						</p>
+
+					</div>
+				</div>
+
+
+				<!-- Service 7 -->
+				<div class="col-md-4">
+					<div class="card service-card p-4 h-100 text-center">
+
+						<div class="service-icon mb-3">💰</div>
+
+						<h5 th:text="#{services.item7.title}">
+							Fair Price Guard
+						</h5>
+
+						<p class="text-muted"
+							th:text="#{services.item7.desc}">
+							Validate product prices against market reference
+							prices and help maintain fair and transparent
+							agricultural pricing.
+						</p>
+
+					</div>
+				</div>
+
+
+				<!-- Service 8 -->
+				<div class="col-md-4">
+					<div class="card service-card p-4 h-100 text-center">
+
+						<div class="service-icon mb-3">🤖</div>
+
+						<h5 th:text="#{services.item8.title}">
+							AI Demand Forecasting
+						</h5>
+
+						<p class="text-muted"
+							th:text="#{services.item8.desc}">
+							Use AI-based demand forecasting to provide
+							procurement insights and help users make
+							better purchasing decisions.
+						</p>
+
+					</div>
+				</div>
+
+
+				<!-- Service 9 -->
+				<div class="col-md-4">
+					<div class="card service-card p-4 h-100 text-center">
+
+						<div class="service-icon mb-3">🚚</div>
+
+						<h5 th:text="#{services.item9.title}">
+							Smart Route & Logistics Optimization
+						</h5>
+
+						<p class="text-muted"
+							th:text="#{services.item9.desc}">
+							Calculate practical delivery routes and optimize
+							logistics using road distance and suitable vehicle
+							selection.
+						</p>
+
+					</div>
+				</div>
+
+
+				<!-- Service 10 -->
+				<div class="col-md-4">
+					<div class="card service-card p-4 h-100 text-center">
+
+						<div class="service-icon mb-3">🧾</div>
+
+						<h5 th:text="#{services.item10.title}">
+							Landed Cost Calculation
+						</h5>
+
+						<p class="text-muted"
+							th:text="#{services.item10.desc}">
+							Show the complete cost of agricultural products by
+							combining product price with applicable logistics
+							costs for transparent purchasing decisions.
+						</p>
+
+					</div>
+				</div>
+
+
+				<!-- Service 11 -->
+				<div class="col-md-4">
+					<div class="card service-card p-4 h-100 text-center">
+
+						<div class="service-icon mb-3">⚖️</div>
+
+						<h5 th:text="#{services.item11.title}">
+							Price + Logistics Comparison
+						</h5>
+
+						<p class="text-muted"
+							th:text="#{services.item11.desc}">
+							Compare agricultural products using both product
+							price and logistics cost instead of comparing
+							product prices alone.
+						</p>
+
+					</div>
+				</div>
+
+
+				<!-- Service 12 -->
+				<div class="col-md-4">
+					<div class="card service-card p-4 h-100 text-center">
+
+						<div class="service-icon mb-3">📦</div>
+
+						<h5 th:text="#{services.item12.title}">
+							Quantity & Bulk Purchase Management
+						</h5>
+
+						<p class="text-muted"
+							th:text="#{services.item12.desc}">
+							Apply minimum and maximum quantity rules while
+							supporting bulk purchasing for merchants and FPOs.
+						</p>
+
+					</div>
+				</div>
+
+			</div>
+		</div>
+
+	</section>
+
+</main>
+
+</body>
+</html>

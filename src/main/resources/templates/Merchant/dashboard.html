@@ -1,0 +1,151 @@
+<html th:replace="~{Merchant/merchantbase::layout(~{::section})}">
+
+<head></head>
+
+<body>
+	<section>
+		<div class="container-flui" style="margin-top: -30px; margin-bottom: -30px;">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-2 bg-white border-end p-3">
+            <h5 class="mb-3">📂 Categories</h5>
+            <ul class="list-group">
+                <li class="list-group-item"
+                    th:classappend="${selectedCategory == null} ? 'active' : ''">
+                    <a th:href="@{/Merchant/Dashboard}" class="text-decoration-none d-block" th:classappend="${selectedCategory == null} ? 'text-white' : ''">All</a>
+                </li>
+                <li th:each="cat : ${categories}" class="list-group-item" th:classappend="${selectedCategory == cat.category} ? 'active' : ''">
+                    <a th:href="@{/Merchant/Dashboard(category=${cat.category})}" class="text-decoration-none d-block" th:classappend="${selectedCategory == cat.category} ? 'text-white' : ''" th:text="${cat.category}">Category</a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Product List -->
+        <div class="col-md-10 p-4 pt-0" id="showProduct">
+            <div class="card mb-4 border-success shadow-sm">
+                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                    <strong>📦 FPO Bulk Products</strong><span>Buy in bulk from verified FPOs</span>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4" th:each="bulk : ${bulkProducts}">
+                            <div class="card h-100 border-success">
+                                <div class="card-body">
+                                    <h5 th:text="${bulk.productName}">Bulk Product</h5>
+                                    <p class="mb-1"><strong>FPO:</strong> <span th:text="${bulk.fpo.name}">FPO</span></p>
+                                    <p class="mb-1"><strong>Available:</strong> <span th:text="${bulk.availableQuantity}"></span></p>
+                                    <p class="mb-1"><strong>Price/Unit:</strong> ₹<span th:text="${bulk.pricePerUnit}"></span></p>
+                                    <p class="mb-3"><strong>Minimum Order:</strong> <span th:text="${bulk.minimumBulkQuantity}"></span></p>
+                                    <a th:href="@{/Merchant/BuyBulkProduct(id=${bulk.id})}" class="btn btn-success w-100">Buy Bulk Now</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div th:if="${#lists.isEmpty(bulkProducts)}" class="text-muted">No FPO bulk products are currently available.</div>
+                </div>
+            </div>
+
+
+
+            <div class="card mb-4 border-primary shadow-sm">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <strong>📊 Price + Logistics Comparison</strong>
+                    <div class="d-flex gap-2">
+                        <select id="compareProduct" class="form-select form-select-sm" style="width:190px;">
+                            <option value="">Select product</option>
+                            <option th:each="name : ${comparisonProducts}" th:value="${name}" th:text="${name}"></option>
+                        </select>
+                        <input id="compareQty" type="number" min="1" value="100" class="form-control form-control-sm" style="width:110px;" placeholder="Qty">
+                        <button class="btn btn-light btn-sm" onclick="loadOfferComparison()">Compare</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="comparisonMessage" class="text-muted mb-3">Compare the same quantity across independent farmers and FPOs. Ranking uses <strong>landed cost per unit</strong> = product price + logistics per unit.</div>
+                    <div class="table-responsive">
+                        <table id="comparisonTable" class="table table-bordered table-sm align-middle d-none">
+                            <thead class="table-light"><tr><th>Product</th><th>Seller</th><th>Type</th><th>Product ₹/unit</th><th>Road km</th><th>Vehicle</th><th>Logistics</th><th>Landed ₹/unit</th><th>Fair Price</th><th></th></tr></thead>
+                            <tbody id="comparisonBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <h4 th:if="${selectedCategory != null}" th:text="'Products in ' + ${selectedCategory}">Category Products</h4>
+            <h4 th:if="${selectedCategory == null}">All Products</h4>
+
+            <div class="row g-4 mt-3">
+                <div class="col-md-3" th:each="product : ${products}">
+                    <div class="card shadow-sm">
+                        <img th:src="@{'/ProductImage/' + ${product.image}}" class="card-img-top p-2 pb-0" style="height: 180px; object-fit: cover;">
+                        <div class="card-body py-1 h-100">
+                            <h4 class="card-title mt-1" th:text="${product.productName}">Product Name</h4>
+                    		<hr class="mt-0">
+                    		<p class="card-text"><strong>Seller:</strong> <span th:text="${product.farmer.name}">Farmer Name</span></p>
+                    		<p class="card-text"><strong>Quantity:</strong> <span th:text="${product.quantity}">0</span> kg Available</p>
+                    		<p class="card-text"><strong>Price/Unit:</strong> ₹<span th:text="${product.pricePerUnit}">0</span></p>
+                    		
+                    		<div class="card-footer text-center">
+                    			<a th:href="@{BuyProduct(id = ${product.id})}" class="btn btn-sm btn-success">Buy Now</a>                    	
+                    		</div>
+                    		<!-- <form th:action="@{OrderNow}" method="post" class="d-flex">
+                        		<input type="hidden" name="productId" th:value="${product.id}" />
+                        		<input type="number" name="buyQuantity" placeholder="Enter Quantity" class="form-control w-50 mx-auto" min="1" max="999" required />
+                        		<button type="submit" class="btn btn-success mx-auto">Buy Now</button>
+                    		</form> -->
+                        </div>
+                    </div>
+                </div>
+                <div th:if="${products.size()} == 0" class="text-muted mt-4">
+                    <p>No products available in this category.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+		
+		
+		<style>
+			#showProduct {
+    			overflow: auto;
+    			height: 80vh;
+
+    			/* Hide scrollbar for WebKit-based browsers */
+    			scrollbar-width: none;          /* Firefox */
+    			-ms-overflow-style: none;       /* Internet Explorer 10+ */
+			}
+
+			#showProduct::-webkit-scrollbar {
+    			display: none;        /* Safari and Chrome */
+			}
+			
+			
+		</style>
+	<script>
+function loadOfferComparison(){
+ const productName=document.getElementById('compareProduct').value; const q=parseInt(document.getElementById('compareQty').value)||0;
+ const msg=document.getElementById('comparisonMessage'), table=document.getElementById('comparisonTable'), body=document.getElementById('comparisonBody');
+ if(!productName){msg.textContent='Select a product to compare.';table.classList.add('d-none');return;} if(q<=0){msg.textContent='Enter a valid quantity.';table.classList.add('d-none');return;}
+ msg.textContent='Calculating road distance and landed cost...'; table.classList.add('d-none');
+ fetch(`/Merchant/compare-offers?productName=${encodeURIComponent(productName)}&quantity=${q}`).then(r=>r.json()).then(d=>{
+   if(d.error){msg.textContent=d.error;return;}
+   body.innerHTML='';
+   (d.offers||[]).forEach(o=>{
+     const tr=document.createElement('tr');
+     const isFpo = (o.purchaseType || o.sellerType || '').toUpperCase() === 'FPO';
+     const buyUrl = isFpo ? `/Merchant/BuyBulkProduct?id=${o.productId}` : `/Merchant/BuyProduct?id=${o.productId}`;
+     const typeBadge = isFpo ? '<span class="badge bg-primary">FPO</span>' : '<span class="badge bg-success">Independent Farmer</span>';
+     let fairBadge='<span class="badge bg-secondary">No reference</span>';
+     if(o.fairPriceStatus==='FAIR') fairBadge='<span class="badge bg-success">✅ FAIR</span>';
+     else if(o.fairPriceStatus==='ABOVE_MARKET') fairBadge='<span class="badge bg-danger">⚠️ ABOVE</span>';
+     else if(o.fairPriceStatus==='BELOW_MARKET') fairBadge='<span class="badge bg-warning text-dark">ℹ️ BELOW</span>';
+     tr.innerHTML=`<td><strong>${o.productName}</strong></td><td>${o.sellerName}</td><td>${typeBadge}</td><td>₹${Number(o.productPrice).toFixed(2)}</td><td>${Number(o.roadDistanceKm).toFixed(2)}</td><td>${(o.vehicleType||'').replaceAll('_',' ')}</td><td>₹${Number(o.logisticsCost).toFixed(2)}</td><td><strong>₹${Number(o.landedCost).toFixed(2)}</strong></td><td>${fairBadge}${o.marketReferencePrice!=null?`<br><small class="text-muted">Ref ₹${Number(o.marketReferencePrice).toFixed(2)}</small>`:''}</td><td>${o.bestLandedCost?'<span class="badge bg-warning text-dark">⭐ BEST LANDED COST</span><br>':''}<a class="btn btn-sm btn-success mt-1" href="${buyUrl}">Buy</a></td>`;
+     body.appendChild(tr);
+   });
+   msg.innerHTML=(d.offers||[]).length?'Comparison includes <strong>independent farmers + FPOs</strong> using product price + ORS road logistics for <strong>'+q+' units</strong>. The ⭐ winner has the lowest landed cost per unit.':'No comparable offers could be calculated. Check merchant/seller addresses, stock limits and ORS key.';
+   if((d.offers||[]).length)table.classList.remove('d-none');
+ }).catch(e=>msg.textContent='Comparison failed: '+e);
+}
+</script>
+</section>
+</body>
+</html>

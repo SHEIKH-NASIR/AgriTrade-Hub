@@ -1,0 +1,86 @@
+<html th:replace="~{FPO/fpobase::layout(~{::section})}">
+<section>
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h3>✏️ Edit Bulk Product</h3>
+            <p class="text-muted mb-0">Update the FPO product name, category, quantity, price and minimum bulk quantity.</p>
+        </div>
+        <a th:href="@{/FPO/Products}" class="btn btn-outline-secondary">Back to Products</a>
+    </div>
+
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Product Details</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" th:action="@{/FPO/Products/Edit}" class="row g-3">
+                        <input type="hidden" name="productId" th:value="${product.id}">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Product</label>
+                            <input type="text" name="productName" class="form-control" th:value="${product.productName}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Category</label>
+                            <input type="text" name="category" class="form-control" th:value="${product.category}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Aggregated Quantity</label>
+                            <input type="number" name="totalQuantity" class="form-control" min="0" th:value="${product.totalQuantity}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Bulk Price Per Unit (₹)</label>
+                            <input type="number" name="pricePerUnit" class="form-control" step="0.01" min="0.01" th:value="${product.pricePerUnit}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Minimum Bulk Quantity</label>
+                            <input type="number" name="minimumBulkQuantity" class="form-control" min="1" th:value="${product.minimumBulkQuantity}" required>
+                        </div>
+            <div class="col-md-2">
+                <label class="form-label">Maximum Bulk</label>
+                <input type="number" name="maxBulkQuantity" min="0" class="form-control" placeholder="0 = no limit" th:value="${product.maxBulkQuantity}" required>
+            </div>
+                        <div class="col-12">
+                            <div class="alert alert-info mb-0">
+                        You can edit the product details and aggregated quantity here. The system prevents reducing the quantity below what has already been sold. For contribution-level changes, you can still use <strong>Manage Farmers</strong> and <strong>Sync New Contributions</strong>.
+                    </div>
+                        </div>
+                        <div class="col-12 d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">💾 Save Changes</button>
+                            <a th:href="@{/FPO/Products/Contributions(productId=${product.id})}" class="btn btn-outline-success">👨‍🌾 Manage Farmers</a>
+                            <a th:href="@{/FPO/Products}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    <div id="fairPriceBox" class="alert alert-secondary mt-2 d-none"></div>
+        </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5>Current Stock Information</h5>
+                    <hr>
+                    <p class="mb-2"><strong>Total Quantity:</strong> <span th:text="${product.totalQuantity}">0</span></p>
+                    <p class="mb-2"><strong>Available for Buyers:</strong> <span th:text="${product.availableQuantity}">0</span></p>
+                    <p class="mb-2"><strong>Allocated to Farmers:</strong> <span th:text="${contributedQuantity}">0</span></p>
+                    <p class="mb-2"><strong>Already Sold:</strong> <span th:text="${soldQuantity}">0</span></p>
+                    <p class="mb-0"><strong>Status:</strong> <span th:text="${product.status}">Available</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+ const n=document.querySelector('[name="productName"]')||document.querySelector('#candidateProduct'), c=document.querySelector('[name="category"]')||document.querySelector('#candidateCategory'), p=document.querySelector('[name="pricePerUnit"]'), box=document.getElementById('fairPriceBox');
+ function check(){if(!n||!c||!p||!n.value||!c.value||!p.value)return;fetch(`/FPO/Products/fair-price?productName=${encodeURIComponent(n.value)}&category=${encodeURIComponent(c.value)}&price=${encodeURIComponent(p.value)}`).then(r=>r.json()).then(d=>{box.classList.remove('d-none');box.textContent=d.status==='FAIR'?`✅ Fair price. Reference ₹${d.referencePrice}; range ₹${d.lowerFairPrice}–₹${d.upperFairPrice}.`:d.status==='ABOVE_MARKET'?`⚠️ Above fair range. Reference ₹${d.referencePrice}; upper limit ₹${d.upperFairPrice}.`:d.status==='BELOW_MARKET'?`ℹ️ Below market reference. Reference ₹${d.referencePrice}; range ₹${d.lowerFairPrice}–₹${d.upperFairPrice}.`:d.message;});}
+ [n,c,p].forEach(x=>x&&x.addEventListener('input',check)); [n,c,p].forEach(x=>x&&x.addEventListener('change',check));
+});
+</script></section>
+</html>

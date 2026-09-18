@@ -1,0 +1,58 @@
+<html xmlns:th="https://www.thymeleaf.org"
+      th:replace="~{FPO/fpobase::layout(~{::section})}">
+<section>
+    <div class="container-fluid">
+        <div class="card shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">⭐ Merchant Reviews & Feedback</h4>
+                <a th:href="@{/FPO/Dashboard}" class="btn btn-secondary btn-sm">← Dashboard</a>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="border rounded p-3 text-center">
+                            <div class="text-muted">Overall Rating</div>
+                            <h2 class="mb-0">⭐ <span th:text="${averageRating}">0.0</span>/5</h2>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="border rounded p-3 text-center">
+                            <div class="text-muted">Verified Reviews</div>
+                            <h2 class="mb-0" th:text="${reviewCount}">0</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div th:if="${reviews == null or #lists.isEmpty(reviews)}"
+                     class="alert alert-info">
+                    No merchant reviews have been received yet.
+                </div>
+
+                <div th:each="r : ${reviews}" class="border rounded p-3 mb-3">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <strong>⭐ <span th:text="${r.rating + '/5'}">5/5</span></strong>
+                            <div class="small text-muted">
+                                Order #<span th:text="${r.order.orderId}">1</span>
+                                • Merchant: <span th:text="${r.merchant.name}">Merchant</span>
+                            </div>
+                        </div>
+                        <small class="text-muted" th:text="${r.createdAt}">Date</small>
+                    </div>
+                    <p th:if="${r.comment != null and !#strings.isEmpty(r.comment)}"
+                       class="mt-3 mb-0" th:text="${r.comment}">
+                        Review comment
+                    </p>
+                    <div class="mt-3 small text-muted">
+                        Quality: <strong th:text="${r.qualityRating != null ? r.qualityRating + '/5' : '—'}">—</strong>
+                        &nbsp; | &nbsp;
+                        Quantity: <strong th:text="${r.quantityAccuracyRating != null ? r.quantityAccuracyRating + '/5' : '—'}">—</strong>
+                        &nbsp; | &nbsp;
+                        Timeliness: <strong th:text="${r.timelinessRating != null ? r.timelinessRating + '/5' : '—'}">—</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</html>

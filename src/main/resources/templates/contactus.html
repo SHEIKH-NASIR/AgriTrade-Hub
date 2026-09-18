@@ -1,0 +1,270 @@
+<html th:replace="~{base::layout(~{::main})}">
+<head></head>
+<body>
+
+	<main class="main">
+
+		<!-- Page Title -->
+		<div class="page-title dark-background pt-5 mt-5"
+			data-aos="fade"
+			style="background-image: url(img/page-title-bg.webp);">
+
+			<div class="container position-relative mt-5">
+
+				<h1 th:text="#{contact.pagetitle}">Contact</h1>
+
+				<nav class="breadcrumbs">
+					<ol>
+						<li>
+							<a href="/" th:text="#{common.home}">Home</a>
+						</li>
+
+						<li class="current"
+							th:text="#{contact.pagetitle}">
+							Contact
+						</li>
+					</ol>
+				</nav>
+
+			</div>
+		</div>
+		<!-- End Page Title -->
+
+
+		<!-- Contact Section -->
+		<section id="contact" class="contact section pt-5">
+
+			<div class="container" data-aos="fade">
+
+				<div class="row gy-5 gx-lg-5">
+
+					<!-- Contact Information -->
+					<div class="col-lg-4">
+
+						<div class="info h-100">
+
+							<h3 th:text="#{contact.getintouch}">
+								Get in touch
+							</h3>
+
+							<p th:text="#{contact.subtext}">
+								Get in touch with us for more information and feel free to ask if have any query
+							</p>
+
+
+							<!-- Location -->
+							<div class="info-item d-flex">
+
+								<i class="bi bi-geo-alt flex-shrink-0"></i>
+
+								<div>
+
+									<h4 th:text="#{contact.location.label}">
+										Location:
+									</h4>
+
+									<p th:text="#{contact.location.value}">
+										AgriHub Near Integral University, Lucknow, India, 226026
+									</p>
+
+								</div>
+
+							</div>
+							<!-- End Location -->
+
+
+							<!-- Email -->
+							<div class="info-item d-flex">
+
+								<i class="bi bi-envelope flex-shrink-0"></i>
+
+								<div>
+
+									<h4 th:text="#{contact.email.label}">
+										Email:
+									</h4>
+
+									<p th:text="#{contact.email.value}">
+										agrihub777@gmail.com
+									</p>
+
+								</div>
+
+							</div>
+							<!-- End Email -->
+
+
+							<!-- Phone -->
+							<div class="info-item d-flex">
+
+								<i class="bi bi-phone flex-shrink-0"></i>
+
+								<div>
+
+									<h4 th:text="#{contact.call.label}">
+										Call:
+									</h4>
+
+									<p th:text="#{contact.call.value}">
+										+91 6391389594
+									</p>
+
+								</div>
+
+							</div>
+							<!-- End Phone -->
+
+						</div>
+
+					</div>
+					<!-- End Contact Information -->
+
+
+					<!-- Contact Form -->
+					<div class="col-lg-8 h-100">
+
+						<form method="post"
+							th:action="@{/contactus}"
+							th:object="${dto}"
+							class="php-email-form">
+
+							<div class="row">
+
+								<div class="col-md-6 form-group">
+
+									<input type="text"
+										th:field="${dto.name}"
+										class="form-control"
+										id="name"
+										th:placeholder="#{contact.form.name}"
+										placeholder="Your Name"
+										required>
+
+								</div>
+
+
+								<div class="col-md-6 form-group mt-3 mt-md-0">
+
+									<input type="text"
+										pattern="[6-9]\d{9}"
+										minlength="10"
+										maxlength="10"
+										th:field="${dto.contactno}"
+										class="form-control rounded-0"
+										id="contactno"
+										th:placeholder="#{contact.form.phone}"
+										placeholder="Your Contact No."
+										required>
+
+								</div>
+
+
+								<div class="col-md-6 form-group mt-3">
+
+									<input type="email"
+										th:field="${dto.email}"
+										class="form-control"
+										id="email"
+										th:placeholder="#{contact.form.email}"
+										placeholder="Your Email"
+										required>
+
+								</div>
+
+
+								<div class="col-md-6 form-group mt-3">
+
+									<input type="text"
+										th:field="${dto.address}"
+										class="form-control"
+										id="address"
+										th:placeholder="#{contact.form.address}"
+										placeholder="Your Address"
+										required>
+
+								</div>
+
+							</div>
+
+
+							<div class="form-group mt-3">
+
+								<textarea
+									th:field="${dto.message}"
+									class="form-control"
+									th:placeholder="#{contact.form.message}"
+									placeholder="Message"
+									required></textarea>
+
+							</div>
+
+
+							<div class="my-3">
+
+								<div class="loading"
+									th:text="#{contact.form.loading}">
+									Loading
+								</div>
+
+								<div class="error-message"></div>
+
+								<div class="sent-message"
+									th:text="#{contact.form.sent}">
+									Your message has been sent. Thank you!
+								</div>
+
+							</div>
+
+
+							<div class="text-center">
+
+								<button type="submit"
+									th:text="#{contact.form.submit}">
+									Send Message
+								</button>
+
+							</div>
+
+						</form>
+
+					</div>
+					<!-- End Contact Form -->
+
+				</div>
+
+			</div>
+
+		</section>
+		<!-- End Contact Section -->
+
+
+		<!-- Google Map Section -->
+		<section>
+
+			<div class="row">
+
+				<div class="col-sm-10 ps-4 mx-auto">
+
+					<iframe
+						class="p-2 shadow bg-success"
+						src="https://www.google.com/maps?q=AgriHub%20Near%20Integral%20University,%20Lucknow,%20India%20226026&output=embed"
+						width="100%"
+						height="350"
+						style="border:0;"
+						allowfullscreen=""
+						loading="lazy"
+						referrerpolicy="no-referrer-when-downgrade">
+					</iframe>
+
+				</div>
+
+			</div>
+
+		</section>
+		<!-- End Google Map Section -->
+
+
+	</main>
+
+</body>
+</html>

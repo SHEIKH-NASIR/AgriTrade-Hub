@@ -1,0 +1,250 @@
+<html th:replace="~{Former/formerbase::layout(~{::section})}">
+
+<section>
+
+    <div class="container-fluid">
+
+        <div class="card shadow-sm">
+
+            <div class="card-header
+                        d-flex
+                        justify-content-between
+                        align-items-center">
+
+                <h4 class="mb-0">
+                    🤖 AI Optimized Delivery Route
+                    <span th:if="${demoMode}" class="badge bg-info ms-2">🧪 DEMO</span>
+                    <span th:unless="${demoMode}" class="badge bg-primary ms-2">REAL</span>
+                </h4>
+
+                <a th:href="@{/Former/Shipments(demo=${demoMode})}"
+                   class="btn btn-secondary btn-sm">
+
+                    ← Back to Shipments
+
+                </a>
+
+            </div>
+
+
+            <div class="card-body">
+
+                <div th:if="${demoMode}" class="alert alert-info">🧪 Demo route only. It never affects real orders, inventory or production reports.</div>
+
+                <div class="alert alert-success">
+
+                    <strong>Route Optimized Successfully!</strong>
+
+                    <br>
+
+                    Total estimated route distance:
+
+                    <strong
+                        th:text="${route.totalDistanceKm + ' km'}">
+                        0 km
+                    </strong>
+
+                    <br>
+
+                    Total estimated drive time:
+
+                    <strong th:text="${route.totalEstimatedTimeMinutes + ' min'}">
+                        0 min
+                    </strong>
+
+                </div>
+
+
+                <div th:each="stop : ${route.stops}"
+                     class="border rounded p-3 mb-3">
+
+                    <div class="row align-items-center">
+
+                        <div class="col-md-1">
+
+                            <span class="badge
+                                         bg-success
+                                         fs-5"
+                                  th:text="${stop.sequence}">
+
+                                1
+
+                            </span>
+
+                        </div>
+
+
+                        <div class="col-md-7">
+
+                            <strong>
+
+                                Order #
+
+                                <span
+                                    th:text="${stop.orderId}">
+                                    1
+                                </span>
+
+                            </strong>
+
+                            <br>
+
+                            <span
+                                th:text="${stop.merchantName}">
+                                Merchant
+                            </span>
+
+                            <br>
+
+                            <span
+                                th:text="${stop.destinationAddress}">
+                                Destination
+                            </span>
+
+                        </div>
+
+
+                        <div class="col-md-4 text-end">
+
+                            <span class="badge bg-primary">
+
+                                Distance:
+
+                                <span
+                                    th:text="${stop.distanceFromPreviousKm + ' km'}">
+                                    0 km
+                                </span>
+
+                                <br>
+
+                                Time:
+
+                                <span th:text="${stop.estimatedDriveTimeMinutes + ' min'}">
+                                    0 min
+                                </span>
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="text-center mt-4">
+
+                    <a th:if="${route.googleMapsUrl != null}"
+                       th:href="${route.googleMapsUrl}"
+                       target="_blank"
+                       class="btn btn-success btn-lg">
+
+                        🗺 Open Optimized Route in Google Maps
+
+                    </a>
+
+                </div>
+
+
+
+                <!-- ONE DRIVER LINK FOR THE WHOLE OPTIMIZED ROUTE -->
+                <div th:if="${route != null and route.stops != null and !#lists.isEmpty(route.stops)}"
+                     class="text-center mt-3">
+
+                    <form id="driverRouteForm"
+                          th:action="@{/Tracking/driver-route-link}"
+                          method="post">
+
+                        <input type="hidden"
+                               name="googleMapsUrl"
+                               th:value="${route.googleMapsUrl}">
+
+                        <th:block th:each="stop : ${route.stops}">
+                            <input type="hidden"
+                                   name="shipmentIds"
+                                   th:value="${stop.shipmentId}">
+                        </th:block>
+
+                        <button type="submit"
+                                class="btn btn-primary btn-lg">
+                            🚚 Create ONE Driver Tracking Link
+                        </button>
+                    </form>
+
+                    <div id="driverLinkResult" class="mt-3" style="display:none;">
+                        <div class="alert alert-primary text-start">
+                            <strong>🚚 Share this ONE link with today's driver</strong>
+                            <div class="input-group mt-2">
+                                <input id="driverLink" type="text" class="form-control" readonly>
+                                <button id="copyDriverLink" type="button" class="btn btn-outline-primary">Copy</button>
+                            </div>
+                            <div class="small text-muted mt-2">
+                                Driver opens this link once. It starts GPS tracking for all stops in this optimized route.
+                                The existing Google Maps multi-stop route remains unchanged.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    const form = document.getElementById('driverRouteForm');
+                    if (!form) return;
+
+                    form.addEventListener('submit', async function (event) {
+                        event.preventDefault();
+
+                        const button = form.querySelector('button[type="submit"]');
+                        const oldText = button.innerHTML;
+                        button.disabled = true;
+                        button.innerHTML = '⏳ Creating tracking link...';
+
+                        try {
+                            const response = await fetch(form.action, {
+                                method: 'POST',
+                                body: new FormData(form)
+                            });
+
+                            const data = await response.json();
+
+                            if (!response.ok || !data.success) {
+                                throw new Error(data.message || 'Could not create driver link.');
+                            }
+
+                            document.getElementById('driverLink').value = data.trackingLink;
+                            document.getElementById('driverLinkResult').style.display = 'block';
+                        } catch (error) {
+                            alert(error.message || 'Could not create driver tracking link.');
+                        } finally {
+                            button.disabled = false;
+                            button.innerHTML = oldText;
+                        }
+                    });
+
+                    const copyButton = document.getElementById('copyDriverLink');
+                    if (copyButton) {
+                        copyButton.addEventListener('click', async function () {
+                            const input = document.getElementById('driverLink');
+                            try {
+                                await navigator.clipboard.writeText(input.value);
+                                copyButton.textContent = 'Copied!';
+                                setTimeout(() => copyButton.textContent = 'Copy', 1500);
+                            } catch (e) {
+                                input.select();
+                                document.execCommand('copy');
+                                copyButton.textContent = 'Copied!';
+                                setTimeout(() => copyButton.textContent = 'Copy', 1500);
+                            }
+                        });
+                    }
+                });
+                </script>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+</html>

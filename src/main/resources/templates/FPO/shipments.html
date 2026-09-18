@@ -1,0 +1,274 @@
+
+<html xmlns:th="https://www.thymeleaf.org" th:replace="~{FPO/fpobase::layout(~{::section})}">
+
+<section>
+<div class="container-fluid">
+
+<div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+<div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+<div class="card shadow-sm">
+
+<div class="card-header d-flex justify-content-between align-items-center">
+
+<h4 class="mb-0">
+🚚 FPO Shipments
+<span th:if="${demoMode}" class="badge bg-info ms-2">🧪 DEMO</span>
+<span th:unless="${demoMode}" class="badge bg-primary ms-2">REAL</span>
+</h4>
+
+<div class="d-flex gap-2 flex-wrap">
+
+<a th:if="${demoMode}"
+   th:href="@{/FPO/Shipments(demo=false)}"
+   class="btn btn-primary">🚚 Real Shipments</a>
+
+<a th:unless="${demoMode}"
+   th:href="@{/FPO/Shipments(demo=true)}"
+   class="btn btn-outline-primary"
+   th:if="${fpo.demoEnabled}">🧪 Demo Shipments</a>
+
+<form th:action="@{/FPO/Shipments/ReverifyLocations}"
+      method="post"
+      class="d-inline">
+<input type="hidden" name="demo" th:value="${demoMode}">
+<button type="submit" class="btn btn-warning">
+🔄 Re-verify Locations &amp; Optimize
+</button>
+</form>
+
+<a th:href="@{/FPO/Shipments/OptimizeRoute(demo=${demoMode})}"
+   class="btn btn-success">
+🤖 Optimize <span th:text="${demoMode ? 'Demo' : 'Real'}">Real</span> Route
+</a>
+
+</div>
+</div>
+
+<div class="card-body table-responsive">
+
+<table class="table table-bordered table-hover align-middle text-center">
+
+<thead class="table-success">
+<tr>
+<th>Shipment</th>
+<th>Order</th>
+<th>Merchant</th>
+<th>Product</th>
+<th>Qty</th>
+<th>Pickup</th>
+<th>Destination</th>
+<th>Transporter</th>
+<th>Vehicle</th>
+<th>ETA</th>
+<th>Status</th>
+<th>Merchant Receipt</th>
+<th>Delay</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody>
+
+<tr th:each="shipment : ${shipments}">
+
+<td>
+<div th:text="${'SHP-' + shipment.id}">SHP-1</div>
+
+<a th:if="${shipment.status != 'DELIVERED' and shipment.status != 'CANCELLED'}"
+   th:href="@{'/Tracking/' + ${shipment.id}}"
+   class="btn btn-info btn-sm mt-1">
+📡 Live GPS
+</a>
+</td>
+
+<td th:text="${'#' + shipment.order.orderId}">#1</td>
+
+<td th:text="${shipment.order.merchant != null ? shipment.order.merchant.name : 'N/A'}">
+Merchant
+</td>
+
+<td th:text="${shipment.order.productName}">Rice</td>
+<td th:text="${shipment.order.quantity}">100</td>
+
+<td th:text="${shipment.pickupAddress}">FPO warehouse</td>
+<td th:text="${shipment.destinationAddress}">Merchant warehouse</td>
+
+<td th:text="${shipment.transporterName != null ? shipment.transporterName : 'Not assigned'}">
+Transporter
+</td>
+
+<td th:text="${shipment.vehicleNumber != null ? shipment.vehicleNumber : 'Not assigned'}">
+Vehicle
+</td>
+
+<td th:text="${shipment.estimatedDeliveryDate != null ? #temporals.format(shipment.estimatedDeliveryDate,'dd-MM-yyyy HH:mm') : 'Not set'}">
+Not set
+</td>
+
+<td>
+<span class="badge"
+th:classappend="
+${shipment.status == 'READY_FOR_PICKUP'} ? 'bg-warning text-dark' :
+(${shipment.status == 'DISPATCHED'} ? 'bg-primary' :
+(${shipment.status == 'IN_TRANSIT'} ? 'bg-info' :
+(${shipment.status == 'DELIVERED'} ? 'bg-success' : 'bg-danger')))
+"
+th:text="${shipment.status}">
+READY_FOR_PICKUP
+</span>
+</td>
+
+<td>
+<span th:if="${shipment.merchantReceived}" class="badge bg-success">
+✅ Received
+</span>
+<span th:unless="${shipment.merchantReceived}" class="text-muted">
+Waiting
+</span>
+</td>
+
+<td>
+
+<div th:if="${shipment.delayReported}">
+
+<span class="badge bg-danger">⚠️ Delay Reported</span>
+
+<div class="small text-danger fw-bold mt-1">
+<strong>Reason:</strong>
+<span th:text="${shipment.delayReason}">Wrong destination</span>
+</div>
+
+<div class="small mt-1" th:if="${shipment.delayMessage != null}">
+<strong>Merchant:</strong>
+<span th:text="${shipment.delayMessage}">Message</span>
+</div>
+
+</div>
+
+<div th:if="${shipment.delayResolved}">
+<span class="badge bg-success">✅ Delay Resolved</span>
+</div>
+
+<span th:if="${!shipment.delayReported and !shipment.delayResolved}"
+class="text-muted">None</span>
+
+</td>
+
+<td>
+
+<form th:if="${shipment.status == 'READY_FOR_PICKUP'}"
+th:action="@{'/FPO/Shipments/' + ${shipment.id} + '/Status'}"
+method="post">
+
+<input type="hidden" name="newStatus" value="DISPATCHED">
+
+<button type="submit" class="btn btn-sm btn-primary">
+🚚 Dispatch
+</button>
+</form>
+
+<form th:if="${shipment.status == 'DISPATCHED'}"
+th:action="@{'/FPO/Shipments/' + ${shipment.id} + '/Status'}"
+method="post">
+
+<input type="hidden" name="newStatus" value="IN_TRANSIT">
+
+<button type="submit" class="btn btn-sm btn-info">
+🛣️ In Transit
+</button>
+</form>
+
+<div th:if="${shipment.status == 'IN_TRANSIT'}">
+
+<a th:href="@{'/Tracking/' + ${shipment.id}}"
+class="btn btn-sm btn-info mb-1">
+📡 Live Tracking
+</a>
+
+<div th:if="${shipment.merchantReceived}">
+<div class="text-success small fw-bold mb-2">
+✅ Merchant confirmed goods received.
+</div>
+
+<form th:action="@{'/FPO/Shipments/' + ${shipment.id} + '/Status'}"
+method="post">
+
+<input type="hidden" name="newStatus" value="DELIVERED">
+
+<button type="submit" class="btn btn-sm btn-success">
+📦 Mark Delivered
+</button>
+</form>
+</div>
+
+<div th:if="${shipment.delayReported and !shipment.delayResolved}" class="mt-2">
+
+<div class="alert alert-warning py-2 px-2 text-start small mb-2">
+<strong>⚠️ Merchant reported a delay</strong><br>
+Resolve the issue and send the resolution back to the merchant.
+</div>
+
+<form th:action="@{'/FPO/Shipments/' + ${shipment.id} + '/ResolveDelay'}" method="post" class="text-start">
+
+<label class="form-label small fw-bold">Resolution / Action Taken</label>
+<textarea name="resolutionMessage" class="form-control form-control-sm mb-2" rows="3" required
+placeholder="Explain how you resolved the delay..."></textarea>
+
+<label class="form-label small fw-bold">Pickup Address</label>
+<input type="text" name="pickupAddress" class="form-control form-control-sm mb-2"
+th:value="${shipment.pickupAddress}" />
+
+<label class="form-label small fw-bold">New Destination</label>
+<input type="text" name="destinationAddress" class="form-control form-control-sm mb-2"
+th:value="${shipment.destinationAddress}" />
+
+<label class="form-label small fw-bold">Transporter</label>
+<input type="text" name="transporterName" class="form-control form-control-sm mb-2"
+th:value="${shipment.transporterName}" />
+
+<label class="form-label small fw-bold">Vehicle Number</label>
+<input type="text" name="vehicleNumber" class="form-control form-control-sm mb-2"
+th:value="${shipment.vehicleNumber}" />
+
+<label class="form-label small fw-bold">New ETA</label>
+<input type="datetime-local" name="newEta" class="form-control form-control-sm mb-2"
+th:value="${shipment.estimatedDeliveryDate != null ? #temporals.format(shipment.estimatedDeliveryDate, 'yyyy-MM-dd') + 'T' + #temporals.format(shipment.estimatedDeliveryDate, 'HH:mm') : ''}" />
+
+<button type="submit" class="btn btn-sm btn-warning w-100">
+✅ Resolve Delay &amp; Notify Merchant
+</button>
+
+</form>
+</div>
+
+<div th:if="${!shipment.merchantReceived and !shipment.delayReported}"
+class="text-muted small">
+Waiting for merchant to confirm receipt...
+</div>
+
+</div>
+
+<span th:if="${shipment.status == 'DELIVERED'}"
+class="text-success fw-bold">✅ Completed</span>
+
+<span th:if="${shipment.status == 'CANCELLED'}"
+class="text-danger fw-bold">❌ Cancelled</span>
+
+</td>
+
+</tr>
+
+<tr th:if="${#lists.isEmpty(shipments)}">
+<td colspan="14" class="text-muted py-4">
+No shipments created yet.
+</td>
+</tr>
+
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+</html>

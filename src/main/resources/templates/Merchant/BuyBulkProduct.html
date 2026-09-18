@@ -1,0 +1,682 @@
+
+<html th:replace="~{Merchant/merchantbase::layout(~{::section})}">
+<section>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-4">
+
+                    <h3 class="text-success fw-bold"
+                        th:text="${product.productName}">
+                        Bulk Product
+                    </h3>
+
+                    <p class="text-muted">
+                        FPO:
+                        <a th:if="${product.fpo != null}" th:href="@{'/Merchant/Seller/FPO/' + ${product.fpo.id}}" th:text="${product.fpo.name}">FPO</a>
+                        <strong th:if="${product.fpo == null}">FPO</strong>
+                        <span th:if="${product.fpo != null}" class="badge bg-warning text-dark">⭐ <span th:text="${@reviewService.averageForFpo(product.fpo.id)}">0.0</span>/5</span>
+                        <small th:if="${product.fpo != null}" class="text-muted">(<span th:text="${@reviewService.countForFpo(product.fpo)}">0</span> verified reviews)</small>
+                    </p>
+
+                    <div class="row">
+
+                        <div class="col-md-6">
+
+                            <p>
+                                <strong>Category:</strong>
+                                <span th:text="${product.category}"></span>
+                            </p>
+
+                            <p>
+                                <strong>Price per Unit:</strong>
+                                ₹<span id="unitPrice"
+                                        th:text="${product.pricePerUnit}">
+                                </span>
+                            </p>
+
+                            <p>
+                                <strong>Available Quantity:</strong>
+                                <span id="availableQty"
+                                      th:text="${product.availableQuantity}">
+                                </span>
+                            </p>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <p>
+                                <strong>Minimum Bulk Quantity:</strong>
+                                <span id="minimumQty"
+                                      th:text="${product.minimumBulkQuantity}">
+                                </span>
+                            </p>
+
+                            <p>
+                                <strong>Maximum Bulk Quantity:</strong>
+                                <span id="maximumQty"
+                                      th:text="${product.maxBulkQuantity > 0
+                                      ? (product.maxBulkQuantity < product.availableQuantity
+                                      ? product.maxBulkQuantity
+                                      : product.availableQuantity)
+                                      : product.availableQuantity}">
+                                </span>
+                            </p>
+
+                            <p>
+                                <strong>Status:</strong>
+                                <span class="badge bg-success"
+                                      th:text="${product.status}">
+                                </span>
+                            </p>
+
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <form id="bulkBuyForm"
+                          onsubmit="event.preventDefault(); startBulkPayment();">
+
+                        <input type="hidden"
+                               id="productId"
+                               th:value="${product.id}">
+
+                        <div class="row g-2 align-items-end">
+
+                            <div class="col-md-6">
+
+                                <label class="form-label">
+                                    Confirm Bulk Quantity
+                                </label>
+
+                                <input type="number"
+                                       id="buyQty"
+                                       class="form-control"
+                                       min="1"
+                                       th:attr="min=${product.minimumBulkQuantity},
+                                       max=${product.maxBulkQuantity > 0
+                                       ? (product.maxBulkQuantity < product.availableQuantity
+                                       ? product.maxBulkQuantity
+                                       : product.availableQuantity)
+                                       : product.availableQuantity}"
+                                       required>
+
+                            </div>
+
+                            <div class="col-md-6">
+
+                                <button type="submit"
+                                        class="btn btn-success w-100">
+                                    💳 Confirm Quantity &amp; Pay
+                                </button>
+
+                                <button th:if="${session.loggedInMerchant != null && session.loggedInMerchant.demoEnabled}"
+                                        type="button"
+                                        class="btn btn-outline-primary w-100 mt-2"
+                                        onclick="createBulkDemoOrder()">
+                                    🧪 Create Demo Order (No Payment)
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                        <div class="alert alert-info mt-3">
+                            Product Amount:
+                            ₹<span id="totalAmount">0</span>
+                        </div>
+
+                        <div id="logisticsInfo"
+                             class="alert alert-warning mt-2">
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+
+            <div class="mt-4">
+
+                <a th:href="@{/Merchant/Dashboard}"
+                   class="btn btn-outline-primary">
+                    ⬅ Back to Dashboard
+                </a>
+
+                <a th:href="@{/Merchant/MyOrders}"
+                   class="btn btn-outline-secondary">
+                    My Orders
+                </a>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- Razorpay -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<!-- jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<!-- SweetAlert -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+<script>
+
+const unitPrice =
+    parseFloat(
+        document.getElementById('unitPrice').textContent
+    ) || 0;
+
+const qtyInput =
+    document.getElementById('buyQty');
+
+const totalAmount =
+    document.getElementById('totalAmount');
+
+const productId =
+    document.getElementById('productId').value;
+
+const minimumQty =
+    parseInt(
+        document.getElementById('minimumQty').textContent
+    ) || 1;
+
+const maximumQty =
+    parseInt(
+        document.getElementById('maximumQty').textContent
+    ) || 0;
+
+
+/* --------------------------------------------------
+   UPDATE PRODUCT + LOGISTICS AMOUNT
+-------------------------------------------------- */
+
+function updateTotal() {
+
+    const quantity =
+        parseInt(qtyInput.value || '0') || 0;
+
+    totalAmount.textContent =
+        (quantity * unitPrice).toFixed(2);
+
+    if (quantity <= 0) {
+        return;
+    }
+
+    fetch(
+        `/Merchant/estimate-logistics?productId=${productId}&quantity=${quantity}&source=FPO`
+    )
+    .then(response => response.json())
+    .then(data => {
+
+        const logisticsInfo =
+            document.getElementById('logisticsInfo');
+
+        if (data.success) {
+
+            const vehicle =
+                String(data.vehicleType || '')
+                    .replaceAll('_', ' ');
+
+            logisticsInfo.innerHTML =
+                `<strong>Road distance:</strong> ${data.roadDistanceKm} km |
+                 <strong>Vehicle:</strong> ${vehicle}<br>
+                 <strong>Product:</strong> ₹${Number(data.productAmount || 0).toFixed(2)} +
+                 <strong>Logistics:</strong> ₹${Number(data.logisticsAmount || 0).toFixed(2)} =
+                 <strong>Landed:</strong> ₹${Number(data.totalAmount || 0).toFixed(2)}`;
+
+        } else {
+
+            logisticsInfo.textContent =
+                data.error ||
+                'Unable to calculate logistics.';
+
+        }
+
+    })
+    .catch(() => {
+
+        document.getElementById('logisticsInfo').textContent =
+            'Unable to calculate logistics.';
+
+    });
+}
+
+
+qtyInput.addEventListener(
+    'input',
+    updateTotal
+);
+
+
+/* --------------------------------------------------
+   INITIAL CALCULATION
+-------------------------------------------------- */
+
+updateTotal();
+
+
+/* --------------------------------------------------
+   QUANTITY VALIDATION
+-------------------------------------------------- */
+
+function validateQuantity() {
+
+    const quantity =
+        parseInt(qtyInput.value);
+
+    if (
+        !Number.isInteger(quantity) ||
+        quantity < minimumQty ||
+        quantity > maximumQty
+    ) {
+
+        alert(
+            'Quantity must be between ' +
+            minimumQty +
+            ' and ' +
+            maximumQty +
+            '.'
+        );
+
+        return false;
+    }
+
+    return true;
+}
+
+
+/* --------------------------------------------------
+   RAZORPAY BULK PAYMENT
+-------------------------------------------------- */
+
+function startBulkPayment() {
+
+    if (!validateQuantity()) {
+        return;
+    }
+
+    const quantity =
+        parseInt(qtyInput.value);
+
+    fetch(
+        `/Merchant/create-bulk-order?productId=${productId}&quantity=${quantity}`
+    )
+    .then(response => response.json())
+    .then(data => {
+
+        if (data.error) {
+
+            alert(data.error);
+            return;
+        }
+
+
+        /* Show final logistics information */
+
+        const vehicle =
+            String(data.vehicleType || '')
+                .replaceAll('_', ' ');
+
+        document.getElementById('logisticsInfo').innerHTML =
+            `<strong>Road distance:</strong> ${data.roadDistanceKm} km |
+             <strong>Vehicle:</strong> ${vehicle}<br>
+             <strong>Product:</strong> ₹${Number(data.productAmount || 0).toFixed(2)} +
+             <strong>Logistics:</strong> ₹${Number(data.logisticsAmount || 0).toFixed(2)} =
+             <strong>Landed:</strong> ₹${Number(data.totalAmount || 0).toFixed(2)}`;
+
+
+        /* Razorpay options */
+
+        const options = {
+
+            key: data.razorpayKeyId,
+
+            amount: data.amount,
+
+            currency: data.currency,
+
+            name: 'AgriTrade Hub',
+
+            description:
+                'FPO Bulk Product + Logistics',
+
+            order_id:
+                data.orderId,
+
+
+            handler: function(response) {
+
+                const form =
+                    document.createElement('form');
+
+                form.method = 'post';
+
+                form.action =
+                    '/Merchant/verify_bulk_payment';
+
+
+                form.innerHTML =
+
+                    `<input type="hidden"
+                            name="paymentId"
+                            value="${response.razorpay_payment_id}">` +
+
+                    `<input type="hidden"
+                            name="orderId"
+                            value="${response.razorpay_order_id}">` +
+
+                    `<input type="hidden"
+                            name="signature"
+                            value="${response.razorpay_signature}">` +
+
+                    `<input type="hidden"
+                            name="productId"
+                            value="${productId}">` +
+
+                    `<input type="hidden"
+                            name="buyQuantity"
+                            value="${quantity}">`;
+
+
+                document.body.appendChild(form);
+
+                form.submit();
+
+            },
+
+
+            prefill: {
+
+                name:
+                    '[[${session.loggedInMerchant.name}]]',
+
+                email:
+                    '[[${session.loggedInMerchant.email}]]'
+
+            },
+
+
+            theme: {
+
+                color: '#198754'
+
+            }
+
+        };
+
+
+        const razorpay =
+            new Razorpay(options);
+
+        razorpay.open();
+
+    })
+    .catch(error => {
+
+        alert(
+            'Unable to start payment: ' +
+            error
+        );
+
+    });
+}
+
+
+/* --------------------------------------------------
+   DEMO BULK ORDER
+-------------------------------------------------- */
+
+function createBulkDemoOrder() {
+
+    if (!validateQuantity()) {
+        return;
+    }
+
+    const quantity =
+        parseInt(qtyInput.value);
+
+
+    if (
+        !confirm(
+            'Create a demo bulk order without Razorpay payment?'
+        )
+    ) {
+
+        return;
+    }
+
+
+    const form =
+        document.createElement('form');
+
+    form.method = 'post';
+
+    form.action =
+        '/Merchant/demo-order';
+
+
+    form.innerHTML =
+
+        `<input type="hidden"
+                name="productId"
+                value="${productId}">` +
+
+        `<input type="hidden"
+                name="buyQuantity"
+                value="${quantity}">` +
+
+        `<input type="hidden"
+                name="source"
+                value="FPO">`;
+
+
+    document.body.appendChild(form);
+
+    form.submit();
+}
+
+
+/* --------------------------------------------------
+   BULK PURCHASE RECEIPT
+-------------------------------------------------- */
+
+function generateBulkReceipt() {
+
+    const { jsPDF } =
+        window.jspdf;
+
+    const doc =
+        new jsPDF();
+
+
+    const product =
+        '[[${product.productName}]]';
+
+    const quantity =
+        parseFloat(
+            '[[${quantity}]]'
+        ) || 0;
+
+    const price =
+        parseFloat(
+            '[[${product.pricePerUnit}]]'
+        ) || 0;
+
+    const transactionId =
+        '[[${transactionId}]]';
+
+
+    doc.setFontSize(20);
+
+    doc.text(
+        'AGRITRADE HUB',
+        105,
+        20,
+        {
+            align: 'center'
+        }
+    );
+
+
+    doc.setFontSize(13);
+
+    doc.text(
+        'FPO BULK PURCHASE RECEIPT',
+        105,
+        30,
+        {
+            align: 'center'
+        }
+    );
+
+
+    doc.setFontSize(12);
+
+
+    doc.text(
+        'Transaction ID: ' +
+        transactionId,
+        20,
+        50
+    );
+
+
+    doc.text(
+        'Product: ' +
+        product,
+        20,
+        65
+    );
+
+
+    doc.text(
+        'FPO: [[${product.fpo.name}]]',
+        20,
+        78
+    );
+
+
+    doc.text(
+        'Quantity: ' +
+        quantity,
+        20,
+        91
+    );
+
+
+    doc.text(
+        'Price/Unit: Rs. ' +
+        price.toFixed(2),
+        20,
+        104
+    );
+
+
+    doc.text(
+        'Total Paid: Rs. ' +
+        (quantity * price).toFixed(2),
+        20,
+        117
+    );
+
+
+    doc.text(
+        'Payment Status: Paid - FPO confirmation pending',
+        20,
+        130
+    );
+
+
+    doc.text(
+        'Buyer: [[${session.loggedInMerchant.name}]]',
+        20,
+        150
+    );
+
+
+    doc.text(
+        'Buyer Email: [[${session.loggedInMerchant.email}]]',
+        20,
+        163
+    );
+
+
+    doc.text(
+        'Thank you for shopping with AgriTrade Hub.',
+        105,
+        200,
+        {
+            align: 'center'
+        }
+    );
+
+
+    doc.save(
+        'Bulk_Receipt_' +
+        transactionId +
+        '.pdf'
+    );
+}
+
+</script>
+
+
+<!-- SUCCESS MESSAGE -->
+
+<script th:if="${bulkPaid}">
+
+Swal.fire({
+
+    title:
+        'Payment Successful!',
+
+    text:
+        'Your bulk order is paid and waiting for FPO confirmation.',
+
+    icon:
+        'success',
+
+    showCancelButton:
+        true,
+
+    confirmButtonText:
+        'Download Bill',
+
+    cancelButtonText:
+        'My Orders'
+
+})
+.then(result => {
+
+    if (result.isConfirmed) {
+
+        generateBulkReceipt();
+
+    }
+
+    else if (
+        result.dismiss ===
+        Swal.DismissReason.cancel
+    ) {
+
+        window.location.href =
+            '/Merchant/MyOrders';
+
+    }
+
+});
+
+</script>
+
+</section>
+</html>
+

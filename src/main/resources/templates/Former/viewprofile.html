@@ -1,0 +1,136 @@
+<html th:replace="~{Former/formerbase::layout(~{::section})}">
+<head></head>
+<body>
+<section>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+
+                <div th:if="${msg}"
+                     class="alert alert-success"
+                     th:text="${msg}">
+                </div>
+
+                <div th:if="${error}"
+                     class="alert alert-danger"
+                     th:text="${error}">
+                </div>
+
+                <div class="card shadow-lg border-0 rounded-4">
+
+                    <div class="card-header bg-primary text-white text-center rounded-top-4">
+                        <h4 class="mb-0">👤 My Profile</h4>
+                    </div>
+
+                    <div class="card-body p-4">
+
+                        <div class="row">
+
+                            <div class="col-md-4 text-center mb-3">
+
+                                <img th:if="${former.profilepic != null and !#strings.isEmpty(former.profilepic)}"
+                                     th:src="@{'/ProfilePic/' + ${former.profilepic}}"
+                                     class="img-thumbnail rounded-circle border border-2"
+                                     alt="Profile Picture"
+                                     width="200"
+                                     height="200"/>
+
+                                <img th:unless="${former.profilepic != null and !#strings.isEmpty(former.profilepic)}"
+                                     th:src="@{/img/user_img.jpg}"
+                                     class="img-thumbnail rounded-circle border border-2"
+                                     alt="Profile Picture"
+                                     width="200"
+                                     height="200"/>
+
+                                <h5 class="mt-3">
+                                    🙍‍♂️
+                                    <span th:text="${former.name}">
+                                        Full Name
+                                    </span>
+                                </h5>
+
+                                <span class="badge bg-success text-white">
+                                    ✅
+                                    <span th:text="${former.status}">
+                                        Active
+                                    </span>
+                                </span>
+
+                            </div>
+
+                            <div class="col-md-8">
+
+                                <table class="table table-borderless">
+
+                                    <tr>
+                                        <th>📧 Email:</th>
+                                        <td th:text="${former.email}">
+                                            email@example.com
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <th>📱 Contact No:</th>
+                                        <td th:text="${former.contactno}">
+                                            1234567890
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <th>🆔 Aadhar No:</th>
+                                        <td th:text="${former.aadharno}">
+                                            0000-0000-0000
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <th>🏠 Address:</th>
+                                        <td th:text="${former.address}">
+                                            Address details here
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <th>📅 Registration Date:</th>
+                                        <td th:text="${former.regdate}">
+                                            01-01-2024
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <th>🔐 Account Status:</th>
+                                        <td th:text="${former.status}">
+                                            Verified
+                                        </td>
+                                    </tr>
+
+                                </table>
+
+                                <div class="mt-4 d-flex gap-2 flex-wrap">
+
+                                    <a th:href="@{/Former/EditProfile}"
+                                       class="btn btn-outline-primary px-4">
+                                        ✏️ Edit Profile
+                                    </a>
+
+                                    <a th:href="@{/Former/ChangePassword}"
+                                       class="btn btn-outline-warning px-4">
+                                        🔐 Change Password
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

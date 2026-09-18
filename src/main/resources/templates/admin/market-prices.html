@@ -1,0 +1,24 @@
+<html th:replace="~{admin/adminbase::layout(~{::section})}">
+<section>
+<div class="container py-4">
+  <h3>Market Price References</h3>
+  <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+  <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+  <form th:action="@{/admin/market-prices}" method="post" class="row g-3 card card-body mb-4">
+    <div class="col-md-3"><label>Product</label><input name="productName" class="form-control" required></div>
+    <div class="col-md-2"><label>Category</label><input name="category" class="form-control"></div>
+    <div class="col-md-2"><label>Reference ₹/unit</label><input name="referencePrice" type="number" step="0.01" min="0.01" class="form-control" required></div>
+    <div class="col-md-2"><label>Lower %</label><input name="lowerPercentage" type="number" step="0.1" min="0" value="10" class="form-control"></div>
+    <div class="col-md-2"><label>Upper %</label><input name="upperPercentage" type="number" step="0.1" min="0" value="10" class="form-control"></div>
+    <div class="col-md-1 d-flex align-items-end"><button class="btn btn-success w-100">Save</button></div>
+  </form>
+  <div class="table-responsive"><table class="table table-bordered">
+    <thead><tr><th>Product</th><th>Category</th><th>Reference</th><th>Range</th><th>Updated</th></tr></thead>
+    <tbody><tr th:each="r : ${references}">
+      <td th:text="${r.productName}"></td><td th:text="${r.category}"></td><td th:text="'₹ ' + ${r.referencePrice}"></td>
+      <td th:text="${r.lowerPercentage + '% below / ' + r.upperPercentage + '% above'}"></td><td th:text="${r.updatedAt}"></td>
+    </tr></tbody>
+  </table></div>
+</div>
+</section>
+</html>

@@ -1,0 +1,66 @@
+<html th:replace="~{FPO/fpobase::layout(~{::section})}">
+<section>
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h3>👨‍🌾 Farmer Contributions</h3>
+            <p class="text-muted mb-0"><strong th:text="${product.productName}">Product</strong> · Total: <strong th:text="${product.totalQuantity}">0</strong> · Available to Buyer: <strong th:text="${product.availableQuantity}">0</strong></p>
+        </div>
+        <a th:href="@{/FPO/Products}" class="btn btn-outline-secondary">Back to Products</a>
+    </div>
+
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-3"><div class="card border-primary"><div class="card-body"><div class="text-muted">Total Aggregated</div><h3 th:text="${allocatedQuantity}">0</h3></div></div></div>
+        <div class="col-md-3"><div class="card border-success"><div class="card-body"><div class="text-muted">Farmer Stock Available</div><h3 th:text="${availableContributionQuantity}">0</h3></div></div></div>
+        <div class="col-md-3"><div class="card border-warning"><div class="card-body"><div class="text-muted">Already Sold</div><h3 th:text="${soldQuantity}">0</h3></div></div></div>
+        <div class="col-md-3"><div class="card border-info"><div class="card-body"><div class="text-muted">Waiting New Contributions</div><h3 th:text="${#lists.size(newCommittedProducts)}">0</h3></div></div></div>
+    </div>
+
+    <div class="card mb-4" th:if="${!#lists.isEmpty(newCommittedProducts)}">
+        <div class="card-body">
+            <h5>New Member Contributions Waiting to Be Added</h5>
+            <p class="text-muted">These farmers have committed the same product to this FPO but have not yet been synchronized into this bulk lot.</p>
+            <form method="post" th:action="@{/FPO/Products/Contributions/Sync}">
+                <input type="hidden" name="productId" th:value="${product.id}">
+                <button class="btn btn-success">🔄 Sync New Contributions</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body table-responsive">
+            <h5>Current Farmer Contributions</h5>
+            <table class="table table-bordered table-hover align-middle text-center">
+                <thead class="table-success">
+                <tr><th>Farmer</th><th>Email</th><th>Source Product</th><th>Contributed</th><th>Available</th><th>Sold Through FPO</th><th>Value at Bulk Price</th><th>Action</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="c : ${contributions}">
+                    <td th:text="${c.farmer.name}">Farmer</td>
+                    <td th:text="${c.farmer.email}">email</td>
+                    <td>
+                        <span th:if="${c.sourceProduct != null}" th:text="${c.sourceProduct.productName + ' (' + c.sourceProduct.id + ')'}">Rice</span>
+                        <span th:unless="${c.sourceProduct != null}" class="text-muted">Legacy/manual contribution</span>
+                    </td>
+                    <td th:text="${c.quantityContributed}">0</td>
+                    <td th:text="${c.quantityAvailable}">0</td>
+                    <td th:text="${c.quantityContributed - c.quantityAvailable}">0</td>
+                    <td th:text="'₹ ' + ${c.quantityContributed * product.pricePerUnit}">₹ 0</td>
+                    <td>
+                        <form method="post" th:action="@{/FPO/Products/Contributions/Remove}">
+                            <input type="hidden" name="contributionId" th:value="${c.id}">
+                            <button class="btn btn-sm btn-danger" th:disabled="${c.quantityAvailable < c.quantityContributed}" onclick="return confirm('Remove this farmer contribution from the bulk lot? The farmer product will become available again as FPO Contribution stock.')">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(contributions)}"><td colspan="8" class="text-center text-muted py-4">No farmer contribution has been linked to this bulk product yet.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</section>
+</html>

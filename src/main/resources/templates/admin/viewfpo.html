@@ -1,0 +1,13 @@
+<html th:replace="~{admin/adminbase::layout(~{::section})}">
+<head></head><body><section>
+<div class="container-fluid"><div class="card"><div class="card-header"><h4>FPO Details</h4></div><div class="card-body" th:if="${fpo != null}">
+<div class="row">
+<div class="col-md-6"><p><strong>Name:</strong> <span th:text="${fpo.name}"></span></p><p><strong>Registration:</strong> <span th:text="${fpo.registrationNumber}"></span></p><p><strong>Contact Person:</strong> <span th:text="${fpo.contactPerson}"></span></p><p><strong>Phone:</strong> <span th:text="${fpo.phone}"></span></p></div>
+<div class="col-md-6"><p><strong>Email:</strong> <span th:text="${fpo.email}"></span></p><p><strong>Address:</strong> <span th:text="${fpo.address}"></span></p><p><strong>Location:</strong> <span th:text="${fpo.district + ', ' + fpo.state}"></span></p><p><strong>Status:</strong> <span th:text="${fpo.status}"></span></p></div>
+</div>
+<hr><h5>Member Farmers</h5><table class="table table-bordered"><thead><tr><th>#</th><th>Name</th><th>Email</th><th>Contact</th></tr></thead><tbody>
+<tr th:each="farmer,stat : ${fpo.members}"><td th:text="${stat.index+1}"></td><td th:text="${farmer.name}"></td><td th:text="${farmer.email}"></td><td th:text="${farmer.contactno}"></td></tr>
+<tr th:if="${#lists.isEmpty(fpo.members)}"><td colspan="4" class="text-center">No members.</td></tr></tbody></table>
+<a href="/admin/newfpo" class="btn btn-secondary">Back</a>
+</div></div></div>
+</section></body></html>

@@ -1,0 +1,148 @@
+<html th:replace="~{Former/formerbase::layout(~{::section})}">
+<head></head>
+<body>
+<section>
+
+    <div class="container">
+
+        <div class="row justify-content-center">
+
+            <div class="col-md-10">
+
+                <div class="card shadow-lg rounded-4 border-0">
+
+                    <div class="card-header bg-primary text-white rounded-top-4">
+                        <h4 class="mb-0 text-center">
+                            Edit Profile
+                        </h4>
+                    </div>
+
+                    <div class="card-body p-4">
+
+                        <div th:if="${msg}"
+                             class="alert alert-warning"
+                             th:text="${msg}">
+                        </div>
+
+                        <form th:action="@{/Former/UpdateProfile}"
+                              th:object="${former}"
+                              method="post"
+                              enctype="multipart/form-data">
+
+                            <div class="row">
+
+                                <div class="col-md-4 text-center mb-3">
+
+                                    <img th:if="${former.profilepic != null and !#strings.isEmpty(former.profilepic)}"
+                                         th:src="@{'/ProfilePic/' + ${former.profilepic}}"
+                                         class="img-thumbnail rounded-circle border border-2"
+                                         alt="Profile Picture"
+                                         width="200"
+                                         height="200"/>
+
+                                    <img th:unless="${former.profilepic != null and !#strings.isEmpty(former.profilepic)}"
+                                         th:src="@{/img/user_img.jpg}"
+                                         class="img-thumbnail rounded-circle border border-2"
+                                         alt="Profile Picture"
+                                         width="200"
+                                         height="200"/>
+
+                                    <div class="mt-3">
+                                        <input type="file"
+                                               name="file"
+                                               class="form-control"
+                                               accept="image/*"/>
+                                    </div>
+
+                                </div>
+
+                                <div class="col-md-8">
+
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold">
+                                            Name
+                                        </label>
+
+                                        <input type="text"
+                                               class="form-control"
+                                               th:field="*{name}"
+                                               required/>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold">
+                                            Email
+                                        </label>
+
+                                        <input type="email"
+                                               class="form-control"
+                                               th:value="${former.email}"
+                                               readonly/>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold">
+                                            Contact No
+                                        </label>
+
+                                        <input type="text"
+                                               class="form-control"
+                                               th:field="*{contactno}"
+                                               required/>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold">
+                                            Aadhar No
+                                        </label>
+
+                                        <input type="text"
+                                               class="form-control"
+                                               th:field="*{aadharno}"
+                                               required/>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold">
+                                            Address
+                                        </label>
+
+                                        <textarea class="form-control"
+                                                  th:field="*{address}"
+                                                  rows="3"
+                                                  required></textarea>
+                                    </div>
+
+                                    <div class="text-end">
+
+                                        <a th:href="@{/Former/ViewProfile}"
+                                           class="btn btn-secondary me-2">
+                                            Cancel
+                                        </a>
+
+                                        <button type="submit"
+                                                class="btn btn-success px-4">
+                                            Update Profile
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+</body>
+</html>

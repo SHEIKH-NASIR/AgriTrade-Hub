@@ -1,0 +1,147 @@
+<html th:replace="~{admin/adminbase::layout(~{::section})}">
+	<head></head>
+
+	<body>
+		<section>
+			<div class="container-fluid">
+				<div class="row">
+					<div class="card w-100">
+						<div class="card-header">
+							<div class="card-title">
+								Recent Enquiries from Visitors
+							</div>
+						</div>
+
+						<div class="card-body">
+							<div class="table-responsive">
+								<table class="table table-bordered table-hover scrollbar-table" id="example">
+									<thead>
+										<tr class="text-center">
+											<th>Sr. No.</th>
+											<th>Name</th>
+											<th>Contact No.</th>
+											<th>Email Address</th>
+											<th>Address</th>
+											<th>Enquiry Message</th>
+											<th>Enquiry Date</th>
+											<th>Delete</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr th:each="e, srno:${enquiryList}">
+											<td class="text-center" th:text="${srno.index+1}">1.</td>
+											<td th:text="${e.name}">Manish Yadav</td>
+											<td class="text-center" th:text="${e.contactno}">1234567890</td>
+											<td th:text="${e.email}">example@gmail.com</td>
+											<td th:text="${e.address}">Address</td>
+											<td th:text="${e.message}">This is a dummy text for enquiry purpose</td>
+											<td th:text="${e.enquirydate}" class="text-center">11/11/2024</td>
+											<td class="text-center">
+												<a th:href="@{enquirydelete(id=${e.id})}" class="text-decoration-none">
+													<button type="button" class="btn btn-danger rounded-0"
+														onclick="return confirm('Are you sure want to delete?')">Delete</button>
+												</a>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- =========================================================
+				     ORDER DISPUTES
+				     ========================================================= -->
+				<div class="row mt-4">
+					<div class="card w-100">
+						<div class="card-header">
+							<div class="card-title">
+								Order Disputes
+							</div>
+						</div>
+
+						<div class="card-body">
+							<div class="table-responsive">
+								<table class="table table-bordered table-hover scrollbar-table">
+									<thead>
+										<tr class="text-center">
+											<th>Sr. No.</th>
+											<th>Dispute</th>
+											<th>Order</th>
+											<th>Merchant</th>
+											<th>Farmer/FPO</th>
+											<th>Product</th>
+											<th>Issue</th>
+											<th>Status</th>
+											<th>Action</th>
+										</tr>
+									</thead>
+
+									<tbody>
+										<tr th:each="dispute, srno : ${disputeList}">
+											<td class="text-center"
+												th:text="${srno.index + 1}">1</td>
+
+											<td th:text="${'#' + dispute.id}">
+												#1
+											</td>
+
+											<td th:text="${dispute.order != null ? '#' + dispute.order.orderId : 'N/A'}">
+												#ATH-XXXX
+											</td>
+
+											<td th:text="${dispute.merchant != null ? dispute.merchant.name : 'N/A'}">
+												ABC Traders
+											</td>
+
+											<td th:text="${dispute.fpo != null ? dispute.fpo.name : (dispute.farmer != null ? dispute.farmer.name : 'N/A')}">
+												XYZ Farms
+											</td>
+
+											<td th:text="${dispute.order != null ? dispute.order.productName : 'N/A'}">
+												Wheat
+											</td>
+
+											<td th:text="${dispute.reason != null ? dispute.reason : 'N/A'}">
+												Quantity mismatch
+											</td>
+
+											<td class="text-center">
+												<span class="badge bg-warning text-dark"
+													th:text="${dispute.status != null ? dispute.status : 'OPEN'}">
+													OPEN
+												</span>
+											</td>
+
+											<td class="text-center">
+												<a th:href="@{/admin/enquiry/disputes/{id}(id=${dispute.id})}"
+													class="btn btn-sm btn-primary">
+													View Details
+												</a>
+											</td>
+										</tr>
+
+										<tr th:if="${disputeList == null or #lists.isEmpty(disputeList)}">
+											<td colspan="9" class="text-center text-muted py-4">
+												No order disputes found.
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+
+			<style>
+				td {
+					white-space: nowrap !important;
+				}
+			</style>
+
+		</section>
+	</body>
+</html>

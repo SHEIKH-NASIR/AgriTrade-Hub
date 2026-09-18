@@ -1,0 +1,328 @@
+<html th:replace="~{Former/formerbase::layout(~{::section})}">
+<head></head>
+
+<body>
+<section>
+
+    <div class="row">
+        <div class="container">
+
+            <div class="row justify-content-center">
+
+                <div class="col-md-8">
+
+                    <div th:if="${error}"
+                         class="alert alert-danger mt-3"
+                         th:text="${error}">
+                    </div>
+
+                    <div th:if="${success}"
+                         class="alert alert-success mt-3"
+                         th:text="${success}">
+                    </div>
+
+                    <div class="mt-2 card shadow-lg rounded">
+
+                        <div class="card-header bg-success text-white text-center">
+                            <h5>Update Product</h5>
+                        </div>
+
+                        <div class="card-body px-4">
+
+                            <form th:action="@{/Former/EditProduct/{id}(id=${product.id})}"
+                                  method="post"
+                                  th:object="${product}"
+                                  enctype="multipart/form-data">
+
+                                <!-- CURRENT IMAGE -->
+                                <div class="mb-3 text-center">
+
+                                    <img alt="Product image"
+                                         th:if="${product.image != null and !#strings.isEmpty(product.image)}"
+                                         th:src="@{'/ProductImage/' + ${product.image}}"
+                                         class="pb-4"
+                                         height="250"
+                                         width="300">
+
+                                    <h5 class="form-label">
+                                        Current Product:
+                                        <span class="text-primary"
+                                              th:text="${product.productName}">
+                                            Product
+                                        </span>
+                                    </h5>
+
+                                </div>
+
+                                <!-- PRODUCT NAME -->
+                                <div class="mb-3">
+
+                                    <label for="productName"
+                                           class="form-label">
+                                        Product Name
+                                    </label>
+
+                                    <input type="text"
+                                           class="form-control"
+                                           id="productName"
+                                           th:field="*{productName}"
+                                           required>
+
+                                </div>
+
+                                <!-- ADMIN CATEGORIES -->
+                                <div class="mb-3">
+
+                                    <label for="category"
+                                           class="form-label">
+                                        Category
+                                    </label>
+
+                                    <select id="category"
+                                            th:field="*{category}"
+                                            class="form-control"
+                                            required>
+
+                                        <option value="">
+                                            -- Select Category --
+                                        </option>
+
+                                        <option th:each="cat : ${categories}"
+                                                th:value="${cat.category}"
+                                                th:text="${cat.category}">
+                                        </option>
+
+                                    </select>
+
+                                    <small class="text-muted">
+                                        Categories are loaded from the categories registered by Admin.
+                                    </small>
+
+                                </div>
+
+                                <!-- QUANTITY -->
+                                <div class="mb-3">
+
+                                    <label for="quantity"
+                                           class="form-label">
+                                        Quantity
+                                    </label>
+
+                                    <input type="number"
+                                           class="form-control"
+                                           id="quantity"
+                                           th:field="*{quantity}"
+                                           min="0"
+                                           required>
+
+                                </div>
+
+                                <!-- PRICE -->
+                                <div class="mb-3">
+
+                                    <label for="pricePerUnit"
+                                           class="form-label">
+                                        Price / Unit
+                                    </label>
+
+                                    <input type="number"
+                                           class="form-control"
+                                           id="pricePerUnit"
+                                           th:field="*{pricePerUnit}"
+                                           min="0"
+                                           step="0.01"
+                                           required>
+
+                                </div>
+
+                                <div id="fairPriceBox" class="alert alert-secondary d-none" role="alert"></div>
+
+                                <!-- SELLING MODE -->
+                                
+
+                            <div class="mb-3">
+                                <label class="form-label">Minimum Order Quantity</label>
+                                <input type="number" class="form-control" th:field="*{minimumOrderQuantity}" min="1" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Maximum Order Quantity</label>
+                                <input type="number" class="form-control" th:field="*{maxOrderQuantity}" min="0" placeholder="0 = no separate maximum">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Maximum FPO Bulk Quantity</label>
+                                <input type="number" class="form-control" th:field="*{maxBulkQuantity}" min="0" placeholder="0 = no separate maximum">
+                            </div>
+<div class="mb-3">
+
+                                    <label for="sellingMode"
+                                           class="form-label">
+                                        Selling Mode
+                                    </label>
+
+                                    <select id="sellingMode"
+                                            th:field="*{sellingMode}"
+                                            class="form-control"
+                                            required>
+
+                                        <option value="INDEPENDENT">
+                                            Independent Sale
+                                        </option>
+
+                                        <option value="FPO">
+                                            FPO Contribution
+                                        </option>
+
+                                    </select>
+
+                                    <small class="text-muted">
+                                        FPO contribution products are supplied through the FPO bulk marketplace.
+                                    </small>
+
+                                </div>
+
+                                <!-- FPO -->
+                                <div class="mb-3"
+                                     id="fpoBox">
+
+                                    <label for="fpoId"
+                                           class="form-label">
+                                        FPO
+                                    </label>
+
+                                    <select id="fpoId"
+                                            name="fpoId"
+                                            class="form-control">
+
+                                        <option value="">
+                                            -- Select FPO --
+                                        </option>
+
+                                        <option th:each="fpo : ${memberFPOs}"
+                                                th:value="${fpo.id}"
+                                                th:text="${fpo.name + ' - ' + fpo.registrationNumber}"
+                                                th:selected="${product.fpo != null and product.fpo.id == fpo.id}">
+                                        </option>
+
+                                    </select>
+
+                                    <small class="text-muted">
+                                        Only FPOs where you are a member are shown.
+                                    </small>
+
+                                </div>
+
+                                <!-- IMAGE -->
+                                <div class="mb-3">
+
+                                    <label for="file"
+                                           class="form-label">
+                                        Replace Product Image
+                                    </label>
+
+                                    <input type="file"
+                                           class="form-control"
+                                           id="file"
+                                           name="image"
+                                           accept="image/*">
+
+                                </div>
+
+                                <!-- BUTTONS -->
+                                <div class="d-flex gap-2">
+
+                                    <button type="submit"
+                                            class="btn btn-success">
+                                        Update Product
+                                    </button>
+
+                                    <a th:href="@{/Former/ManageProduct}"
+                                       class="btn btn-secondary">
+                                        Cancel
+                                    </a>
+
+                                </div>
+
+                            </form>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const mode = document.getElementById("sellingMode");
+    const box = document.getElementById("fpoBox");
+    const fpo = document.getElementById("fpoId");
+
+    function toggleFpo() {
+
+        const isFpo =
+            mode && mode.value === "FPO";
+
+        if (box) {
+            box.style.display =
+                isFpo ? "block" : "none";
+        }
+
+        if (fpo) {
+            fpo.required =
+                isFpo;
+        }
+    }
+
+    if (mode) {
+        mode.addEventListener(
+                "change",
+                toggleFpo
+        );
+
+        toggleFpo();
+    }
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const name = document.getElementById('productName');
+    const category = document.getElementById('category');
+    const price = document.getElementById('pricePerUnit');
+    const box = document.getElementById('fairPriceBox');
+    function checkFairPrice() {
+        if (!name || !category || !price || !box || !name.value || !category.value || !price.value) {
+            box.classList.add('d-none');
+            return;
+        }
+        fetch(`/Former/fair-price?productName=${encodeURIComponent(name.value)}&category=${encodeURIComponent(category.value)}&price=${encodeURIComponent(price.value)}`)
+            .then(r => r.json())
+            .then(d => {
+                box.classList.remove('d-none');
+                if (d.status === 'FAIR') {
+                    box.className='alert alert-success';
+                    box.innerHTML=`<strong>✅ FAIR PRICE</strong><br>Market Reference: ₹${Number(d.referencePrice).toFixed(2)} &nbsp;|&nbsp; Fair Range: ₹${Number(d.lowerFairPrice).toFixed(2)} – ₹${Number(d.upperFairPrice).toFixed(2)} &nbsp;|&nbsp; Your Price: ₹${Number(d.sellerPrice).toFixed(2)}`;
+                } else if (d.status === 'ABOVE_MARKET') {
+                    box.className='alert alert-danger';
+                    box.innerHTML=`<strong>⚠️ ABOVE FAIR RANGE</strong><br>Market Reference: ₹${Number(d.referencePrice).toFixed(2)} &nbsp;|&nbsp; Fair upper limit: ₹${Number(d.upperFairPrice).toFixed(2)} &nbsp;|&nbsp; Your Price: ₹${Number(d.sellerPrice).toFixed(2)}`;
+                } else if (d.status === 'BELOW_MARKET') {
+                    box.className='alert alert-warning';
+                    box.innerHTML=`<strong>ℹ️ BELOW MARKET RANGE</strong><br>Market Reference: ₹${Number(d.referencePrice).toFixed(2)} &nbsp;|&nbsp; Fair Range: ₹${Number(d.lowerFairPrice).toFixed(2)} – ₹${Number(d.upperFairPrice).toFixed(2)} &nbsp;|&nbsp; Your Price: ₹${Number(d.sellerPrice).toFixed(2)}`;
+                } else {
+                    box.className='alert alert-secondary';
+                    box.textContent=d.message || 'Market price reference unavailable.';
+                }
+            }).catch(() => box.classList.add('d-none'));
+    }
+    [name, category, price].forEach(el => { if (el) { el.addEventListener('input', checkFairPrice); el.addEventListener('change', checkFairPrice); } });
+    checkFairPrice();
+});
+</script>
+</section>
+</body>
+</html>

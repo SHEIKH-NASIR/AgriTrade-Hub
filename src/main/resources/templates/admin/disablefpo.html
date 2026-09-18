@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org" th:replace="~{admin/adminbase::layout(~{::section})}">
+<head><title>Disabled FPOs</title></head>
+<body>
+<section>
+<div class="container-fluid">
+<h4 class="page-title">Disabled FPOs</h4>
+<div class="card shadow mt-3"><div class="card-body"><div class="table-responsive">
+<table id="example" class="display table table-striped table-hover">
+<thead><tr><th>ID</th><th>FPO Name</th><th>Registration No.</th><th>Contact Person</th><th>Phone</th><th>Email</th><th>State</th><th>District</th><th>Address</th><th>Registered</th><th>Status</th><th>Action</th></tr></thead>
+<tbody>
+<tr th:each="fpo : ${FPOList}">
+<td th:text="${fpo.id}"></td><td th:text="${fpo.name}"></td><td th:text="${fpo.registrationNumber}"></td><td th:text="${fpo.contactPerson}"></td><td th:text="${fpo.phone}"></td><td th:text="${fpo.email}"></td><td th:text="${fpo.state}"></td><td th:text="${fpo.district}"></td><td th:text="${fpo.address}"></td><td th:text="${fpo.regdate}"></td><td><span class="badge badge-danger" th:text="${fpo.status}"></span></td>
+<td><a class="btn btn-sm btn-success" th:href="@{/admin/fpostatus(id=${fpo.id})}" onclick="return confirm('Enable this FPO?');">Enable</a></td>
+</tr>
+<tr th:if="${#lists.isEmpty(FPOList)}"><td colspan="12" class="text-center">No disabled FPOs.</td></tr>
+</tbody></table>
+</div></div></div>
+</div>
+</section>
+</body></html>

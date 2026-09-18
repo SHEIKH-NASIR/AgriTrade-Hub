@@ -1,0 +1,144 @@
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/adminbase::layout(~{::section})}">
+
+<section>
+    <div class="container-fluid">
+
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+        <div th:if="${msg}" class="alert alert-info" th:text="${msg}"></div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div class="card-title mb-0">
+                            🚨 Order Dispute #<span th:text="${dispute.id}">1</span>
+                        </div>
+                        <a th:href="@{/admin/enquiry}" class="btn btn-sm btn-outline-secondary">
+                            ← Back to Enquiries
+                        </a>
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="card border-info h-100">
+                                    <div class="card-header bg-info text-white">
+                                        <strong>Merchant / Buyer</strong>
+                                    </div>
+                                    <div class="card-body">
+                                        <p><b>Name:</b> <span th:text="${dispute.merchant != null ? dispute.merchant.name : 'N/A'}">Nasir</span></p>
+                                        <p th:if="${dispute.merchant != null}"><b>Email:</b> <a th:href="'mailto:' + ${dispute.merchant.email}" th:text="${dispute.merchant.email}">email</a></p>
+                                        <p th:if="${dispute.merchant != null}"><b>Phone:</b> <a th:href="'tel:' + ${dispute.merchant.contactno}" th:text="${dispute.merchant.contactno}">phone</a></p>
+                                        <p><b>Address:</b> <span th:text="${dispute.merchant != null ? dispute.merchant.address : 'N/A'}">Address</span></p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="card border-success h-100">
+                                    <div class="card-header bg-success text-white">
+                                        <strong>Farmer / FPO</strong>
+                                    </div>
+                                    <div class="card-body">
+                                        <div th:if="${dispute.fpo != null}">
+                                            <p><b>FPO:</b> <span th:text="${dispute.fpo.name}">FPO</span></p>
+                                            <p><b>Email:</b> <a th:href="'mailto:' + ${dispute.fpo.email}" th:text="${dispute.fpo.email}">email</a></p>
+                                            <p><b>Phone:</b> <a th:href="'tel:' + ${dispute.fpo.phone}" th:text="${dispute.fpo.phone}">phone</a></p>
+                                            <p><b>Address:</b> <span th:text="${dispute.fpo.address}">Address</span></p>
+                                        </div>
+                                        <div th:if="${dispute.fpo == null and dispute.farmer != null}">
+                                            <p><b>Name:</b> <span th:text="${dispute.farmer.name}">Farmer</span></p>
+                                            <p><b>Email:</b> <a th:href="'mailto:' + ${dispute.farmer.email}" th:text="${dispute.farmer.email}">email</a></p>
+                                            <p><b>Phone:</b> <a th:href="'tel:' + ${dispute.farmer.contactno}" th:text="${dispute.farmer.contactno}">phone</a></p>
+                                            <p><b>Address:</b> <span th:text="${dispute.farmer.address}">Address</span></p>
+                                        </div>
+                                        <div th:if="${dispute.fpo == null and dispute.farmer == null}" class="text-muted">
+                                            Seller information not available.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="card border-primary">
+                            <div class="card-header bg-primary text-white">
+                                <strong>📦 Order Details</strong>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3"><b>Order:</b> #<span th:text="${dispute.order != null ? dispute.order.orderId : 'N/A'}">7</span></div>
+                                    <div class="col-md-3"><b>Product:</b> <span th:text="${dispute.order != null ? dispute.order.productName : 'N/A'}">mangoes</span></div>
+                                    <div class="col-md-3"><b>Quantity:</b> <span th:text="${dispute.order != null ? dispute.order.quantity : 'N/A'}">1</span></div>
+                                    <div class="col-md-3"><b style="color:#212529 !important;">Status:</b> <span th:text="${dispute.order != null ? dispute.order.orderStatus : 'N/A'}">Delivered</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card border-warning mt-4" style="color:#212529;">
+                            <div class="card-header bg-warning text-dark">
+                                <strong>⚠️ Dispute Details</strong>
+                            </div>
+                            <div class="card-body">
+                                <p style="color:#212529 !important;"><b>Reason:</b> <span style="color:#212529 !important;" th:text="${dispute.reason != null ? dispute.reason : 'N/A'}">Wrong quantity</span></p>
+                                <div class="alert alert-light border" style="white-space: pre-line; color:#212529 !important; background-color:#f8f9fa;" th:text="${dispute.description != null ? dispute.description : 'No description provided.'}">Description</div>
+                                <p th:if="${dispute.evidenceReference != null and !#strings.isEmpty(dispute.evidenceReference)}">
+                                    <b>Evidence reference:</b> <span th:text="${dispute.evidenceReference}"></span>
+                                </p>
+                                <p class="mb-0">
+                                    <b style="color:#212529 !important;">Status:</b>
+                                    <span class="badge bg-info text-dark" th:text="${dispute.status != null ? dispute.status : 'OPEN'}">OPEN</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div th:if="${dispute.adminResolution != null and !#strings.isEmpty(dispute.adminResolution)}"
+                             class="alert alert-success mt-4">
+                            <strong>✅ Admin Resolution</strong><br>
+                            <span style="white-space: pre-line;" th:text="${dispute.adminResolution}">Resolution</span>
+                        </div>
+
+                        <div class="card shadow-sm mt-4">
+                            <div class="card-header">
+                                <strong>🛠 Admin Resolution / Conversation Notes</strong>
+                            </div>
+                            <div class="card-body">
+                                <form th:action="@{'/admin/enquiry/disputes/' + ${dispute.id} + '/resolve'}" method="post">
+                                    <label class="form-label fw-bold">Resolution / Notes</label>
+                                    <textarea name="resolution" class="form-control" rows="5" required
+                                              th:text="${dispute.adminResolution}"
+                                              placeholder="Enter the action taken, refund/adjustment decision, or conversation notes..."></textarea>
+                                    <button type="submit" class="btn btn-success mt-3">
+                                        ✅ Resolve Dispute
+                                    </button>
+                                </form>
+
+                                <hr>
+
+                                <form th:action="@{'/admin/enquiry/disputes/' + ${dispute.id} + '/status'}" method="post">
+                                    <label class="form-label fw-bold">Update Status</label>
+                                    <div class="d-flex gap-2 flex-wrap">
+                                        <select name="status" class="form-control" style="max-width:220px">
+                                            <option value="OPEN" th:selected="${dispute.status == 'OPEN'}">OPEN</option>
+                                            <option value="IN_REVIEW" th:selected="${dispute.status == 'IN_REVIEW'}">IN_REVIEW</option>
+                                            <option value="RESOLVED" th:selected="${dispute.status == 'RESOLVED'}">RESOLVED</option>
+                                        </select>
+                                        <button type="submit" class="btn btn-outline-primary">
+                                            Update Status
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</html>
