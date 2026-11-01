@@ -86,9 +86,15 @@
    */
   const preloader = document.querySelector('#preloader');
   if (preloader) {
-    window.addEventListener('load', () => {
-      preloader.remove();
-    });
+    const hidePreloader = () => {
+      if (preloader && preloader.parentNode) {
+        preloader.style.opacity = '0';
+        setTimeout(() => preloader.remove(), 600);
+      }
+    };
+    window.addEventListener('load', hidePreloader);
+    // Dismiss after 500ms max so visitors don't experience perceived lag
+    setTimeout(hidePreloader, 500);
   }
 
   /**
